@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- chamfered frame, same shape as the app's panels -->
+    <path android:strokeColor="#6FD8FF" android:strokeWidth="3"
+        android:pathData="M40,30 L74,30 L80,36 L80,72 L74,78 L34,78 L28,72 L28,42 Z" />
+    <!-- lines of a README -->
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="5" android:strokeLineCap="square"
+        android:pathData="M38,44 L70,44 M38,54 L64,54 M38,64 L54,64" />
+    <!-- blinking-cursor block -->
+    <path android:fillColor="#6FD8FF"
+        android:pathData="M60,60 L67,60 L67,68 L60,68 Z" />
+</vector>
