@@ -74,19 +74,42 @@ fun LevelDetail(level: Wl4Level, mode: Mode, progress: ProgressStore) {
     val d = level.data(mode)
     PageTitle(level.name, "${level.passage.label} · ${mode.label}")
     HardNote(mode)
-    level.items(mode).forEach { item ->
+    // Panels follow the route through the level, with the frog switch in its place.
+    val items = level.items(mode).associateBy { it.id.substringAfterLast('_') }
+    var switchShown = false
+    d.steps.forEach { token ->
+        if (token == "switch") {
+            switchShown = true
+            SwitchPanel(d)
+        } else {
+            val item = items[token] ?: return@forEach
+            ItemPanel(item, progress.isDone(item.id)) { progress.toggle(item.id) }
+        }
+    }
+    // Anything the order doesn't mention (shouldn't happen) still gets shown.
+    val listed = d.steps.toSet()
+    items.filterKeys { it !in listed }.values.forEach { item ->
         ItemPanel(item, progress.isDone(item.id)) { progress.toggle(item.id) }
     }
-    Panel(stripe = Palette.warning) {
-        PanelHeading("Escape", Palette.warning)
-        LabeledLine("Timer", d.escapeTime, Palette.warning)
-        d.escapeTip?.let { Text(it, color = Palette.text, fontSize = 16.sp, lineHeight = 22.sp) }
-    }
+    if (!switchShown) SwitchPanel(d)
     if (level.notes.isNotEmpty()) {
         Panel(stripe = Palette.line) {
             PanelHeading("Worth knowing")
             Lines(level.notes)
         }
+    }
+}
+
+@Composable
+private fun SwitchPanel(d: ModeData) {
+    Panel(stripe = Palette.warning) {
+        PanelHeading("Frog switch", Palette.warning)
+        LabeledLine("Timer", d.escapeTime, Palette.warning)
+        Text(
+            "Hitting it starts the escape. Everything below is collected on the way back.",
+            color = Palette.muted, fontSize = 14.sp,
+        )
+        d.escapeTip?.let { Text(it, color = Palette.text, fontSize = 16.sp, lineHeight = 22.sp) }
     }
 }
 

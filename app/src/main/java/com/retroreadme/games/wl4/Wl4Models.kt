@@ -24,8 +24,15 @@ data class ModeData(
     val keyzer: String,
     /** Countdown after hitting the frog switch, as the game shows it. */
     val escapeTime: String,
+    /**
+     * The order you reach things along the usual route, space-separated:
+     * j1..j4 (jewel pieces), cd, key (Keyzer) and switch (the frog switch).
+     */
+    val order: String,
     val escapeTip: String? = null,
-)
+) {
+    val steps: List<String> get() = order.split(" ").filter { it.isNotBlank() }
+}
 
 data class Wl4Level(
     /** Stable id used in checklist keys, e.g. "ptp_j1". Never rename once released. */
@@ -44,11 +51,27 @@ enum class ItemKind(val label: String) { JEWEL("Jewel piece"), CD("CD"), KEYZER(
 /** One checkbox: a jewel piece, CD or Keyzer in a level. */
 data class Wl4Item(val id: String, val kind: ItemKind, val number: Int, val where: String, val color: Color)
 
-fun Wl4Level.items(mode: Mode): List<Wl4Item> {
+/** This level's jewel pieces, CD and Keyzer, keyed by their token in [ModeData.order]. */
+private fun Wl4Level.itemsByToken(mode: Mode): Map<String, Wl4Item> {
     val d = data(mode)
-    return d.jewels.mapIndexed { i, w -> Wl4Item("${id}_j${i + 1}", ItemKind.JEWEL, i + 1, w, passage.color) } +
-        listOfNotNull(d.cd?.let { Wl4Item("${id}_cd", ItemKind.CD, 0, it, Wl4Colors.Cd) }) +
-        Wl4Item("${id}_key", ItemKind.KEYZER, 0, d.keyzer, Wl4Colors.Keyzer)
+    val jewels = d.jewels.mapIndexed { i, w ->
+        "j${i + 1}" to Wl4Item("${id}_j${i + 1}", ItemKind.JEWEL, i + 1, w, passage.color)
+    }
+    return (jewels + listOfNotNull(
+        d.cd?.let { "cd" to Wl4Item("${id}_cd", ItemKind.CD, 0, it, Wl4Colors.Cd) },
+        "key" to Wl4Item("${id}_key", ItemKind.KEYZER, 0, d.keyzer, Wl4Colors.Keyzer),
+    )).toMap()
+}
+
+/**
+ * Items in the order you reach them on this difficulty. Checklist ids stay the same
+ * whatever the order, so saved progress is unaffected. Anything missing from the
+ * order is added at the end so it can never disappear.
+ */
+fun Wl4Level.items(mode: Mode): List<Wl4Item> {
+    val byToken = itemsByToken(mode)
+    val ordered = data(mode).steps.mapNotNull { byToken[it] }
+    return ordered + byToken.values.filter { it !in ordered }
 }
 
 data class Boss(

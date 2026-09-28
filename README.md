@@ -3,7 +3,7 @@
 Offline walkthroughs for retro games, laid out for the Retroid Pocket Nova's 1280x960 (4:3) landscape
 screen and driven entirely by its controls. Runs on Android 8.0 (API 26) and up.
 
-Games: Mega Man X2 (SNES), Super Mario World (SNES), Wario Land 4 (GBA, Normal and Hard).
+Games: Mega Man X2 (SNES), Super Mario World (SNES), Kirby's Dream Land 3 (SNES), Wario Land 4 (GBA, Normal and Hard), Metroid: Zero Mission (GBA), Castlevania: Aria of Sorrow (GBA).
 
 ## Build
 
@@ -14,7 +14,7 @@ Games: Mega Man X2 (SNES), Super Mario World (SNES), Wario Land 4 (GBA, Normal a
 
 ## Controls
 
-- Launcher: D-pad picks a game, A opens it, B exits.
+- Launcher: D-pad picks a game, A opens it (or opens and closes a console or group), B exits. Select (or D-pad up to the top bar) opens the theme menu.
 - D-pad: move. Moving through the left list changes the right side immediately.
 - D-pad right: step into the detail pane; D-pad down walks through it and scrolls.
 - A: check off an item. B (or D-pad left): back to the list. B on the list: back to the launcher.

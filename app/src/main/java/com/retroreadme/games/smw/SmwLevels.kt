@@ -17,8 +17,8 @@ import com.retroreadme.games.smw.World.YOSHIS_ISLAND
 
 /**
  * Every level on the map, in map order, with all 96 exits (72 normal, 24 secret).
- * Exit routes and destinations were checked against at least two independent guides;
- * the few with only one detailed source are marked confirm = true.
+ * Exit routes and destinations were checked against at least two independent guides,
+ * then confirmed in a full playthrough.
  */
 object SmwLevels {
 
@@ -56,12 +56,12 @@ object SmwLevels {
             normal = ExitInfo("Donut Plains 2", listOf(GOAL)),
             secret = ExitInfo(
                 "Donut Secret 1",
-                needs = listOf("Cape", "or Green blocks"),
+                needs = listOf("Yoshi", "or Green blocks"),
                 steps = listOf(
-                    "Stomp the Super Koopa with the flashing cape right at the start. It drops a Cape Feather.",
-                    "Near the end, after the stacked hills with Super Koopas and the last Dragon Coin, run along the top hill and take off.",
-                    "Fly up onto the thin yellow pipes overhead. The key and keyhole are up there, past the green pipe that walls them off.",
+                    "Near the end, the key and keyhole are up on the thin yellow pipes overhead.",
+                    "Riding Yoshi, from the top of the pipe, do a Yoshi jump: jump with Yoshi, then jump off his back at the top of the arc for extra height, and land up by the key.",
                     "With the Green Switch Palace done, a column of green blocks near the goal lets you climb up instead.",
+                    "A Cape flight from the hills can also get up there, but the Yoshi jump is much easier.",
                 ),
             ),
             notes = listOf("With the Yellow Switch Palace done, you can go up a pipe partway through into a 1-Up room."),
@@ -111,7 +111,6 @@ object SmwLevels {
             secret = ExitInfo(
                 "Donut Secret House",
                 needs = listOf("P-Switch (in the level)"),
-                confirm = true,
                 steps = listOf(
                     "The key is in a ? block boxed in by other blocks. A P-Switch not far away turns those blocks into coins.",
                     "The fish don't come back once defeated, so clear the path first, then carry the P-Switch close to the keyhole.",
@@ -258,7 +257,6 @@ object SmwLevels {
             secret = ExitInfo(
                 "Forest Ghost House",
                 needs = listOf("P-Balloon (in the level)"),
-                confirm = true,
                 steps = listOf(
                     "Get the P-Balloon from its block. Instead of floating right, float left, underneath the wooden logs.",
                     "Keep going to a block and a keyhole. The block holds the key.",
@@ -271,7 +269,6 @@ object SmwLevels {
             normal = ExitInfo("Forest of Illusion 3", listOf(GOAL)),
             secret = ExitInfo(
                 "Blue Switch Palace",
-                confirm = true,
                 steps = listOf(
                     "Near the end there's a yellow block and what looks like a wall blocking a passage.",
                     "The wall isn't solid. Swim through it to the key and keyhole.",
@@ -323,7 +320,15 @@ object SmwLevels {
             ),
         ),
         level("fsa", "Forest Secret Area", FOREST, LEVEL, ExitInfo("Forest Fortress", listOf(GOAL))),
-        level("ffort", "Forest Fortress", FOREST, FORTRESS, ExitInfo("Star Road (Star World 4)", listOf("Defeat the Reznors.")), boss = reznor),
+        level(
+            "ffort", "Forest Fortress", FOREST, FORTRESS,
+            ExitInfo("Star Road (Star World 4)", listOf("Defeat the Reznors.")),
+            boss = reznor,
+            notes = listOf(
+                "Secret route (Cape needed): take off and fly up over the path above the red door, and keep flying all the way along.",
+                "Up there are nine 1-Up Mushrooms and a second boss door. It leads to the same Reznor fight, so it's not an extra exit.",
+            ),
+        ),
         level(
             "roy", "#5 Roy's Castle", FOREST, CASTLE,
             ExitInfo("Chocolate Island 1", listOf("Defeat Roy.")),
@@ -359,7 +364,6 @@ object SmwLevels {
             secret = ExitInfo(
                 "Chocolate Fortress",
                 needs = listOf("Cape"),
-                confirm = true,
                 steps = listOf(
                     "Play to the end of the level, near the normal goal.",
                     "Get a run-up, take off, and fly right, underneath the normal goal, until you reach the secret one.",
@@ -402,13 +406,17 @@ object SmwLevels {
             normal = ExitInfo("Valley of Bowser 3", listOf("Reach the goal.")),
             secret = ExitInfo(
                 "#7 Larry's Castle",
+                needs = listOf("P-Switches (in the level)", "or Cape"),
                 steps = listOf(
-                    "After the first door, run right to the last door in the corridor.",
-                    "Carry the P-Switch right until you reach a ? block. Being small makes the rest much easier.",
-                    "Step on the P-Switch and quickly hit the ? block. A line of blocks starts growing: steer it right, then up and right, to build a path.",
-                    "Follow it to a small alcove with the key, then carry the key right to the keyhole.",
+                    "In the big second room, hit the block above you for a P-Switch, step on it, and run right as fast as you can to the last door before it runs out.",
+                    "Pick up the P-Switch and go right to the ? block and hit it. A Control Coin comes out and leaves a trail of coins; it keeps going the last way you pressed.",
+                    "Build steps: keep alternating right, up, right, up on the D-pad so the trail climbs in a stair-step pattern toward the top-right corner. It runs for about 10 seconds on the timer.",
+                    "If you're big, let a Boo hit you so you're small; the gap by the key is only one block tall.",
+                    "Step on the P-Switch: the coins turn into blocks. Climb the steps, then run and jump through the narrow gap at the top.",
+                    "Carry the key right to the keyhole. If you miss, go back down through the door and redo the P-Switch run from the big room.",
+                    "Cape: skip the coin trail entirely. Run, take off, and fly or spin-jump up to the top (the Top Secret Area is a handy place to grab a Cape first).",
                 ),
-            ),
+            )
         ),
         level("vob3", "Valley of Bowser 3", VALLEY, LEVEL, ExitInfo("Valley of Bowser 4", listOf(GOAL))),
         level(

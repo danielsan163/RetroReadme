@@ -1,11 +1,26 @@
 package com.retroreadme.games.smw
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import com.retroreadme.core.CheckItem
 import com.retroreadme.core.Game
 import com.retroreadme.core.GameTab
 import com.retroreadme.core.Platform
+import com.retroreadme.ui.GUIDE_FOOTER
+import com.retroreadme.ui.ListMenu
 import com.retroreadme.ui.MasterDetail
 import com.retroreadme.ui.MasterItem
+import com.retroreadme.ui.MenuOption
+import android.view.KeyEvent as AndroidKeyEvent
 
 /** Super Mario World: level guides organised around the 96 exits. */
 object SmwGame {
@@ -27,8 +42,19 @@ object SmwGame {
                 val progress = ctx.progress
                 val levels = SmwLevels.all
                 val total = SmwLevels.allExits.map { it.id }
+                var menuOpen by remember { mutableStateOf(false) }
+                // Bumped after every jump or cancel so the list takes focus back (on the new selection).
+                var jumps by remember { mutableIntStateOf(0) }
+
+                fun jumpTo(world: World) {
+                    ctx.onSelect(levels.first { it.world == world }.id)
+                    menuOpen = false
+                    jumps++
+                }
+
                 val items = listOf(
                     MasterItem(SMW_OVERVIEW_KEY, "Progress", "${progress.countDone(total)} of ${total.size} exits"),
+                    MasterItem(SMW_JUMP_KEY, "Jump to world", "A or Select", expanded = false),
                 ) + levels.mapIndexed { i, level ->
                     MasterItem(
                         level.id, level.name, levelSubtitle(level),
@@ -36,12 +62,46 @@ object SmwGame {
                         groupHeader = if (i == 0 || levels[i - 1].world != level.world) level.world.label else null,
                     )
                 }
-                MasterDetail(
-                    items = items, selectedKey = ctx.selectedKey, onSelect = ctx.onSelect,
-                    detailScroll = ctx.detailScroll, onDetailViewport = ctx.onDetailViewport,
-                ) { k ->
-                    if (k == SMW_OVERVIEW_KEY) SmwOverviewDetail(progress)
-                    else LevelDetail(SmwLevels.byId.getValue(k), progress)
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .onPreviewKeyEvent { event ->
+                            if (event.type == KeyEventType.KeyDown && !menuOpen &&
+                                event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_BUTTON_SELECT
+                            ) {
+                                menuOpen = true
+                                true
+                            } else {
+                                false
+                            }
+                        },
+                ) {
+                    MasterDetail(
+                        items = items, selectedKey = ctx.selectedKey, onSelect = ctx.onSelect,
+                        detailScroll = ctx.detailScroll, onDetailViewport = ctx.onDetailViewport,
+                        onActivate = { k -> if (k == SMW_JUMP_KEY) menuOpen = true },
+                        footer = GUIDE_FOOTER + "\nSelect jumps to a world.",
+                        focusRequestKey = jumps.takeIf { it > 0 },
+                    ) { k ->
+                        when (k) {
+                            SMW_OVERVIEW_KEY -> SmwOverviewDetail(progress)
+                            SMW_JUMP_KEY -> WorldJumpDetail(progress) { jumpTo(it) }
+                            else -> LevelDetail(SmwLevels.byId.getValue(k), progress)
+                        }
+                    }
+                    if (menuOpen) {
+                        ListMenu(
+                            title = "Jump to world",
+                            options = World.entries.map { MenuOption(it.name, it.label, worldProgress(it, progress)) },
+                            currentId = SmwLevels.byId[ctx.selectedKey]?.world?.name,
+                            onPick = { jumpTo(World.valueOf(it)) },
+                            // Put focus back on the list so the D-pad keeps working.
+                            onCancel = {
+                                menuOpen = false
+                                jumps++
+                            },
+                        )
+                    }
                 }
             },
 

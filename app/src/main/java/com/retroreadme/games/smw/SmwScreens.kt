@@ -176,3 +176,27 @@ fun PageDetail(page: Page) {
     PageTitle(page.title, page.subtitle)
     page.sections.forEach { SectionPanel(it) }
 }
+
+// ---------------------------------------------------------------- Jump to world
+
+const val SMW_JUMP_KEY = "jump"
+
+/** "d of n" exits for a world, for the jump menu and the jump page. */
+fun worldProgress(world: World, progress: ProgressStore): String {
+    val ids = SmwLevels.all.filter { it.world == world }.flatMap { it.exits }.map { it.id }
+    return "${progress.countDone(ids)} of ${ids.size}"
+}
+
+/** Shown while the "Jump to world" row is highlighted: every world, tap one to jump there. */
+@Composable
+fun WorldJumpDetail(progress: ProgressStore, onJump: (World) -> Unit) {
+    PageTitle("Jump to world", "Press A or Select to open the list, or tap a world here.")
+    World.entries.forEach { world ->
+        Panel(stripe = Palette.accent, onClick = { onJump(world) }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(world.label, color = Palette.text, fontFamily = Condensed, fontSize = 19.sp, modifier = Modifier.weight(1f))
+                Text(worldProgress(world, progress), color = Palette.muted, fontSize = 14.sp)
+            }
+        }
+    }
+}

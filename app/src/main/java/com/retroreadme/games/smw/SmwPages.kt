@@ -77,12 +77,10 @@ object SmwPages {
                 Section(null, listOf(
                     "Blue: an egg in Star World 2.",
                     "Red: an egg at the start of Star World 4 (there's also one low down in Star World 1).",
+                    "Yellow: in Star World 3 and Star World 5.",
                     "Feed a baby five enemies or objects, or a single power-up, and it grows up.",
                     "You can pick a baby up and carry it. A common plan: grow Blue Yoshi in Star World 2, leave through its normal exit so he stays with you, then take him to Star World 4 and 5.",
                 )),
-                Section("Check on the Nova", listOf(
-                    "Yellow: listed in Star World 3 and Star World 5, but only one source says so.",
-                ), tone = Tone.WARNING),
                 Section("Blue Yoshi without Star World", listOf(
                     "In the SNES version, touching Yoshi's wings (for example the wings block in Cheese Bridge Area) turns Yoshi blue until you lose him.",
                 )),
@@ -107,11 +105,12 @@ object SmwPages {
             "needs", "Exits that need them", "Plan which power-up to bring",
             listOf(
                 Section("Cape", listOf(
-                    "Donut Plains 1 (or green blocks), Donut Ghost House, Cheese Bridge Area, Chocolate Island 3, Vanilla Secret 1 (or blue blocks).",
+                    "Donut Ghost House, Cheese Bridge Area, Chocolate Island 3, Vanilla Secret 1 (or blue blocks).",
                     "Cape is one option for Donut Plains 2, Donut Secret House, Star World 3, 4 and 5.",
                 )),
                 Section("Yoshi", listOf(
                     "Valley of Bowser 4: required. Get the egg at the start and keep him to the end.",
+                    "Donut Plains 1: a Yoshi jump from the pipe is the easy way up to the key (a Cape or green blocks also work).",
                     "Blue Yoshi is the no-palace route for Star World 4 and 5.",
                 )),
                 Section("Big Mario", listOf(

@@ -29,6 +29,7 @@ object Wl4Levels {
                 cd = null,
                 keyzer = "At the end of the rolling tutorial, before the last jewel piece.",
                 escapeTime = "1:00",
+                order = "j1 j2 j3 key j4 switch",
                 escapeTip = "Set the stone by the steps before you press the switch, then use it to break the blocks and crawl back.",
             ),
             hard = ModeData(
@@ -41,6 +42,7 @@ object Wl4Levels {
                 cd = null,
                 keyzer = "At the end of the rolling tutorial, before the last jewel piece.",
                 escapeTime = "0:15",
+                order = "j1 j2 j3 key j4 switch",
                 escapeTip = "Only 15 seconds: set the stone by the steps before pressing the switch.",
             ),
             notes = listOf("The tutorial level. No CD here."),
@@ -60,6 +62,7 @@ object Wl4Levels {
                 cd = "From the last jewel piece, go down and walk through the right wall to the metal box.",
                 keyzer = "Outside the caves, hit the red ! switch and climb the blocks it makes.",
                 escapeTime = "1:30",
+                order = "j1 j2 j3 j4 cd key switch",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -71,6 +74,7 @@ object Wl4Levels {
                 cd = "From the last jewel piece, go down and walk through the right wall to the metal box.",
                 keyzer = "Outside the caves, hit the red ! switch and climb the blocks it makes.",
                 escapeTime = "0:45",
+                order = "j1 j2 j3 j4 cd key switch",
             ),
         ),
         Wl4Level(
@@ -80,11 +84,12 @@ object Wl4Levels {
                     "Get into the cave under the blue block (float up as Puffy Wario and super smash it). Through the door on the right, swim up the currents; at the crossroad go right to the end.",
                     "From the very top of the level, drop to the platform below with the heart medal.",
                     "Back on the main path after floating up past the two red crystals, heading right.",
-                    "After the switch, on the way left to the Keyzer.",
+                    "After the switch, just past the Keyzer on the way back left.",
                 ),
                 cd = "At the start, get stung by the Beezley at the second flower and float as Puffy Wario to the very top.",
                 keyzer = "After the switch, climb the new green platforms and head left.",
                 escapeTime = "2:30",
+                order = "cd j1 j2 j3 switch key j4",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -96,6 +101,7 @@ object Wl4Levels {
                 cd = "At the start, get stung by the Beezley at the second flower and float as Puffy Wario to the very top.",
                 keyzer = "After the switch, climb the new green platforms and head left.",
                 escapeTime = "1:20",
+                order = "cd j1 j2 j3 j4 switch key",
             ),
         ),
         Wl4Level(
@@ -110,6 +116,7 @@ object Wl4Levels {
                 cd = "After the switch, dash attack the blue block left of the first door, near the entrance.",
                 keyzer = "After the switch, dive to the bottom, go right past the spinning maces; it's just out of the water at the top.",
                 escapeTime = "3:00",
+                order = "j1 j2 switch key j3 j4 cd",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -121,6 +128,7 @@ object Wl4Levels {
                 cd = "After the switch, dash attack the blue block left of the first door, near the entrance.",
                 keyzer = "After the switch, dive to the bottom, go right past the spinning maces; it's just out of the water at the top.",
                 escapeTime = "2:00",
+                order = "j1 j2 j3 j4 switch key cd",
                 escapeTip = "Don't eat the monkeys' apples on the way back: Fat Wario is slow.",
             ),
         ),
@@ -136,6 +144,7 @@ object Wl4Levels {
                 cd = "In the Fat Wario cave, pound the floor by the left wall until the Hammer guy bounces up. Get hit, spring as Bouncy Wario into the room above, and roll down its slope.",
                 keyzer = "Roll down the first slope at the far left, jump at the end into a secret crystal passage, take its pipe back to the start, and ride the blue platform to its end.",
                 escapeTime = "4:00",
+                order = "j1 cd j2 switch j3 j4 key",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -147,6 +156,7 @@ object Wl4Levels {
                 cd = "In the Fat Wario cave, pound the floor by the left wall until the Hammer guy bounces up. Get hit, spring as Bouncy Wario into the room above, and roll down its slope.",
                 keyzer = "Roll down the first slope at the far left, jump at the end into a secret crystal passage, take its pipe back to the start, and ride the blue platform to its end.",
                 escapeTime = "2:45",
+                order = "j1 cd j2 switch j3 j4 key",
             ),
         ),
 
@@ -164,6 +174,7 @@ object Wl4Levels {
                 cd = "After the switch, get flattened by a piston, drop through the newly opened passage at the bottom right of the wheel room, float right and slip through the tight hole.",
                 keyzer = "On the conveyor belts: jump belt to belt. It's between the third and fourth.",
                 escapeTime = "3:30",
+                order = "j1 j2 key switch j3 cd j4",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -175,6 +186,7 @@ object Wl4Levels {
                 cd = "After the switch, get flattened by a piston, drop through the newly opened passage at the bottom right of the wheel room, float right and slip through the tight hole.",
                 keyzer = "On the conveyor belts: jump belt to belt. It's between the third and fourth.",
                 escapeTime = "2:50",
+                order = "j1 j2 j3 key switch cd j4",
             ),
         ),
         Wl4Level(
@@ -189,6 +201,7 @@ object Wl4Levels {
                 cd = "Dash-break the blue block and clear the garbage heading right. After three chunks, smash down and go left.",
                 keyzer = "After the switch, as Bouncy Wario, spring from right under the fifth block from the left.",
                 escapeTime = "5:00",
+                order = "j1 j2 j3 cd switch key j4",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -200,6 +213,7 @@ object Wl4Levels {
                 cd = "Dash-break the blue block and clear the garbage heading right. After three chunks, smash down and go left.",
                 keyzer = "After the switch, as Bouncy Wario, spring from right under the fifth block from the left.",
                 escapeTime = "3:30",
+                order = "j1 j2 j3 cd switch key j4",
             ),
         ),
         Wl4Level(
@@ -214,6 +228,7 @@ object Wl4Levels {
                 cd = "After the switch, take the long roll down, climb past the Yetis, crawl through the small passage and break the block from below. Then from the vortex, go right.",
                 keyzer = "Near the first jewel: skip the lower passage and take the next one down to its end.",
                 escapeTime = "4:00",
+                order = "j1 key j2 j3 j4 switch cd",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -225,6 +240,7 @@ object Wl4Levels {
                 cd = "After the switch, take the long roll down, climb past the Yetis, crawl through the small passage and break the block from below. Then from the vortex, go right.",
                 keyzer = "Near the start: skip the lower passage and take the next one down to its end.",
                 escapeTime = "3:30",
+                order = "j1 key j2 j3 j4 switch cd",
             ),
         ),
         Wl4Level(
@@ -239,6 +255,7 @@ object Wl4Levels {
                 cd = "After the third ball room, roll down the slope, then work up and to the left.",
                 keyzer = "After the switch, in the room past the one with the sparking antennas.",
                 escapeTime = "6:00",
+                order = "j1 j2 j3 cd j4 switch key",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -250,6 +267,7 @@ object Wl4Levels {
                 cd = "After the third ball room, roll down the slope, then work up and to the left.",
                 keyzer = "After the switch, in the room past the one with the sparking antennas.",
                 escapeTime = "5:15",
+                order = "j1 j2 j3 cd j4 switch key",
             ),
             notes = listOf("Each ball room opens once all four black balls are in the mouths. Slam the platforms under out-of-reach balls to knock them down."),
         ),
@@ -268,6 +286,7 @@ object Wl4Levels {
                 cd = "After the last jewel, take the pyramid to the door on the right (stand on the ball to reach the slot). The CD is inside.",
                 keyzer = "After the switch, break the cat blocks under the blue block and jump to the upper floor.",
                 escapeTime = "4:00",
+                order = "j1 j2 j3 switch key j4 cd",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -279,6 +298,7 @@ object Wl4Levels {
                 cd = "After the last jewel, take the pyramid to the door on the right (stand on the ball to reach the slot). The CD is inside.",
                 keyzer = "After the switch, break the cat blocks under the blue block and jump to the upper floor.",
                 escapeTime = "2:30",
+                order = "j1 j2 j3 switch key j4 cd",
             ),
             notes = listOf("Winking cat blocks can be broken; still cat faces mean leave it; blue blocks never break."),
         ),
@@ -294,6 +314,7 @@ object Wl4Levels {
                 cd = "Turn into Flat Wario at a slot machine and float into the hole high in the right wall.",
                 keyzer = "After the switch, get the board's cursor to Goal. The floor vanishes; catch it as you fall.",
                 escapeTime = "3:00",
+                order = "j1 j2 j3 j4 cd switch key",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -305,6 +326,7 @@ object Wl4Levels {
                 cd = "After the switch and the Keyzer drop, go right along the small corridor above the blue blocks and break the blocks.",
                 keyzer = "After the switch, get the board's cursor to Goal. The floor vanishes; catch it as you fall.",
                 escapeTime = "2:30",
+                order = "j1 j2 j3 j4 switch key cd",
             ),
             notes = listOf("Slot results: arrows swap solid and dotted platforms, Wario's face transforms you, the bolt costs 400 coins, the Black Man spawns enemies."),
         ),
@@ -320,6 +342,7 @@ object Wl4Levels {
                 cd = "After rolling through the tight passage, take the door on the left.",
                 keyzer = "Right after the switch, just below it.",
                 escapeTime = "6:00",
+                order = "j1 j2 switch key j3 j4 cd",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -331,6 +354,7 @@ object Wl4Levels {
                 cd = "After the switch, in the pencil-climbing section, up and to the right.",
                 keyzer = "Right after the switch, just below it.",
                 escapeTime = "5:15",
+                order = "j1 j2 switch key cd j3 j4",
             ),
             notes = listOf("You can walk through the blue sections of wall."),
         ),
@@ -346,6 +370,7 @@ object Wl4Levels {
                 cd = "Beat the dominos in the room after the underwater one to open a door.",
                 keyzer = "After the switch, back in the entry room, drop down the hole.",
                 escapeTime = "4:00",
+                order = "j1 j2 cd switch j3 key j4",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -357,6 +382,7 @@ object Wl4Levels {
                 cd = "Beat the dominos in the room after the underwater one to open a door.",
                 keyzer = "After the switch, back in the entry room, drop down the hole.",
                 escapeTime = "3:00",
+                order = "j1 j2 cd switch j3 key j4",
             ),
             notes = listOf("Hit the red button at the end of a row before the dominos do; it breaks walls you need."),
         ),
@@ -375,6 +401,7 @@ object Wl4Levels {
                 cd = "After the second jewel, roll again from the same spot to uncover a secret room.",
                 keyzer = "After the switch, fly up to it as Bat Wario.",
                 escapeTime = "3:30",
+                order = "j1 j2 cd j3 j4 switch key",
                 escapeTip = "The big ghosts steal the Keyzer and lock the doors until you get it back. Keep away from them.",
             ),
             hard = ModeData(
@@ -387,6 +414,7 @@ object Wl4Levels {
                 cd = "On the last platform before the door, roll down the slope to the left into a new room.",
                 keyzer = "After the switch, fly up to it as Bat Wario.",
                 escapeTime = "2:45",
+                order = "j1 cd j2 j3 j4 switch key",
                 escapeTip = "The big ghosts steal the Keyzer and lock the doors until you get it back. Keep away from them.",
             ),
         ),
@@ -402,6 +430,7 @@ object Wl4Levels {
                 cd = "After the last jewel, fly the final carpet left (it dissolves in water), then go down the ladder.",
                 keyzer = "In the room with the Beezley and bat cylinders: become Bat Wario, fly up to the ladder and go down.",
                 escapeTime = "4:00",
+                order = "j1 j2 key j3 switch j4 cd",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -413,6 +442,7 @@ object Wl4Levels {
                 cd = "After the last jewel, fly the final carpet left (it dissolves in water), then go down the ladder.",
                 keyzer = "In the room with the Beezley and bat cylinders: become Bat Wario, fly up to the ladder and go down.",
                 escapeTime = "3:00",
+                order = "j1 j2 key j3 switch j4 cd",
             ),
             notes = listOf("Carpets follow the way you face. Move gently or they'll leave without you."),
         ),
@@ -428,6 +458,7 @@ object Wl4Levels {
                 cd = "After the switch, let a Yeti freeze you from its right side so you slide all the way left.",
                 keyzer = "After the switch, up the platforms past the ladder.",
                 escapeTime = "5:00",
+                order = "j1 j2 switch j3 key cd j4",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -439,6 +470,7 @@ object Wl4Levels {
                 cd = "After the switch, let a Yeti freeze you from its right side so you slide all the way left.",
                 keyzer = "After the switch, up the platforms past the ladder.",
                 escapeTime = "4:00",
+                order = "j1 switch j2 j3 key cd j4",
             ),
             notes = listOf("Hitting the switch freezes the whole cave and turns the boulder throwers into Yetis."),
         ),
@@ -454,6 +486,7 @@ object Wl4Levels {
                 cd = "After the switch, Room 203: break the blocks, go past the wall, and drop as Zombie Wario.",
                 keyzer = "Room 401: burn the flame block as Flaming Wario.",
                 escapeTime = "4:00",
+                order = "j1 j2 key j3 j4 switch cd",
             ),
             hard = ModeData(
                 jewels = listOf(
@@ -465,6 +498,7 @@ object Wl4Levels {
                 cd = "After the switch, Room 203: break the blocks, go past the wall, and drop as Zombie Wario.",
                 keyzer = "Room 401: burn the flame block as Flaming Wario.",
                 escapeTime = "3:15",
+                order = "j1 key j2 j3 j4 switch cd",
             ),
         ),
 
@@ -482,6 +516,7 @@ object Wl4Levels {
                 cd = null,
                 keyzer = "Break the big block with the Professor, roll down again, and jump the two pits.",
                 escapeTime = "9:30",
+                order = "switch j1 j2 j3 j4 key",
                 escapeTip = "You land on the switch as you enter, so the clock runs the whole level. Keep moving: chandeliers fall and platforms crumble.",
             ),
             hard = ModeData(
@@ -494,6 +529,7 @@ object Wl4Levels {
                 cd = null,
                 keyzer = "Break the big block with the Professor, roll down again, and jump the two pits.",
                 escapeTime = "6:00",
+                order = "switch j1 j2 j3 j4 key",
                 escapeTip = "You land on the switch as you enter, so the clock runs the whole level. Keep moving: chandeliers fall and platforms crumble.",
             ),
             notes = listOf("Opens once all four main bosses are beaten. No CD here."),

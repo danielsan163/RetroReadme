@@ -12,8 +12,8 @@ android {
         applicationId = "com.retroreadme"
         minSdk = 26          // Nova runs Android 13; 26 keeps adaptive icons and older handhelds
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
     }
 
     buildTypes {

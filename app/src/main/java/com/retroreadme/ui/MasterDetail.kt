@@ -62,8 +62,15 @@ data class MasterItem(
     val depth: Int = 0,
     /** For child rows: the last child, so its tree line stops halfway down. */
     val lastChild: Boolean = false,
+    /**
+     * For rows nested more than one level deep: one entry per outer level, true where that
+     * level's vertical line carries on past this row (its parent wasn't the last child).
+     */
+    val outerLines: List<Boolean> = emptyList(),
     /** For rows that open and close a nested list: true when open. Null for ordinary rows. */
     val expanded: Boolean? = null,
+    /** Draws a pixel star after the title (the launcher uses it for fully completed guides). */
+    val starred: Boolean = false,
 )
 
 /**
@@ -82,6 +89,11 @@ fun MasterDetail(
     onActivate: ((String) -> Unit)? = null,
     /** Control hint under the list. Null hides it. */
     footer: String? = GUIDE_FOOTER,
+    /**
+     * Change this value to move focus (and scroll) to the selected row, e.g. after a jump menu
+     * changes the selection. Null does nothing.
+     */
+    focusRequestKey: Any? = null,
     detail: @Composable ColumnScope.(String) -> Unit,
 ) {
     val keys = items.map { it.key }
@@ -92,6 +104,12 @@ fun MasterDetail(
     LaunchedEffect(Unit) {
         withFrameNanos { }
         runCatching { requesters[selectedKey]?.requestFocus() }
+    }
+    LaunchedEffect(focusRequestKey) {
+        if (focusRequestKey != null) {
+            withFrameNanos { }
+            runCatching { requesters[selectedKey]?.requestFocus() }
+        }
     }
     LaunchedEffect(selectedKey) { detailScroll.scrollTo(0) }
     BackHandler(enabled = detailHasFocus) {
@@ -197,6 +215,7 @@ private fun MasterRow(
             .fillMaxWidth()
             .height(IntrinsicSize.Min),
     ) {
+        item.outerLines.forEach { carriesOn -> TreeGutter(last = false, tick = false, line = carriesOn) }
         if (item.depth > 0) TreeGutter(item.lastChild)
         Row(
             Modifier
@@ -218,7 +237,13 @@ private fun MasterRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(item.title, color = Palette.text, fontSize = 17.sp, fontFamily = Condensed)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(item.title, color = Palette.text, fontSize = 17.sp, fontFamily = Condensed)
+                    if (item.starred) {
+                        Spacer(Modifier.width(6.dp))
+                        PixelStar(16.dp)
+                    }
+                }
                 if (item.subtitle != null) {
                     Text(item.subtitle, color = if (selected) Palette.text.copy(alpha = 0.75f) else Palette.muted, fontSize = 13.sp)
                 }
@@ -237,7 +262,7 @@ private fun MasterRow(
 
 /** Tree connector for a child row: a vertical line down from the parent and a tick into the row. */
 @Composable
-private fun TreeGutter(last: Boolean) {
+private fun TreeGutter(last: Boolean, tick: Boolean = true, line: Boolean = true) {
     val lineColor = Palette.muted.copy(alpha = 0.5f)
     Box(
         Modifier
@@ -247,8 +272,8 @@ private fun TreeGutter(last: Boolean) {
                 val stroke = 2.dp.toPx()
                 val x = 12.dp.toPx()
                 val midY = size.height / 2
-                drawLine(lineColor, Offset(x, 0f), Offset(x, if (last) midY else size.height), stroke)
-                drawLine(lineColor, Offset(x, midY), Offset(size.width, midY), stroke)
+                if (line) drawLine(lineColor, Offset(x, 0f), Offset(x, if (last && tick) midY else size.height), stroke)
+                if (tick) drawLine(lineColor, Offset(x, midY), Offset(size.width, midY), stroke)
             },
     )
 }

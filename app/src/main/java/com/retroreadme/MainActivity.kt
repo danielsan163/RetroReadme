@@ -8,6 +8,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.retroreadme.core.ProgressStore
+import com.retroreadme.core.SettingsStore
 import com.retroreadme.games.GameRegistry
 import com.retroreadme.ui.RetroReadmeApp
 
@@ -23,7 +24,8 @@ class MainActivity : ComponentActivity() {
         }
         // One store per game, each in its own prefs file, shared by the launcher and the guide.
         val stores = GameRegistry.games.associate { it.id to ProgressStore(applicationContext, it.id) }
-        setContent { RetroReadmeApp(stores) }
+        val settings = SettingsStore(applicationContext)
+        setContent { RetroReadmeApp(stores, settings) }
     }
 
     /**
