@@ -33,7 +33,8 @@ const val MZM_JUMP_KEY = "jump"
 
 fun itemSubtitle(item: Item): String {
     val needs = if (item.needs.isEmpty()) "Nothing special" else item.needs.joinToString(", ")
-    return if (item.late) "After Chozodia · $needs" else needs
+    val room = MzmMaps.roomOf(item)?.code
+    return listOfNotNull(room, "After Chozodia".takeIf { item.late }, needs).joinToString(" · ")
 }
 
 fun areaProgress(area: Area, progress: ProgressStore): String {
@@ -43,7 +44,8 @@ fun areaProgress(area: Area, progress: ProgressStore): String {
 
 @Composable
 fun ItemDetail(item: Item, progress: ProgressStore) {
-    PageTitle(item.name, "${item.area.label} · ${item.kind.label}")
+    val room = MzmMaps.roomOf(item)
+    PageTitle(item.name, listOfNotNull(item.area.label, room?.code, item.kind.label).joinToString(" · "))
     val done = progress.isDone(item.id)
     Panel(stripe = item.kind.color, onClick = { progress.toggle(item.id) }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -68,6 +70,17 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
                 "Only one of the two guides covers this item. Worth confirming on the Nova.",
                 color = Palette.warning, fontSize = 14.sp,
             )
+        }
+    }
+    if (room != null) {
+        // Close-up by default; A switches to the whole area and back.
+        var zoomed by remember(item.id) { mutableStateOf(true) }
+        Panel(onClick = { zoomed = !zoomed }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${item.area.label} map · ${room.code}", color = Palette.accent, fontFamily = Condensed, fontSize = 17.sp, modifier = Modifier.weight(1f))
+                Text(if (zoomed) "A: whole area" else "A: close-up", color = Palette.muted, fontSize = 13.sp)
+            }
+            AreaMapView(MzmMaps.of(item.area), highlight = room, selectedItem = item.id, progress = progress, zoomed = zoomed)
         }
     }
 }
@@ -164,4 +177,51 @@ fun BossDetail(boss: Boss) {
 fun MzmPageDetail(page: MzmPage) {
     PageTitle(page.title, page.subtitle)
     page.sections.forEach { SectionPanel(it) }
+}
+
+fun legProgress(leg: Leg, progress: ProgressStore): String =
+    "${progress.countDone(leg.itemIds)} of ${leg.itemIds.size}"
+
+@Composable
+fun RouteOverviewDetail(progress: ProgressStore) {
+    val all = MzmRoute.items
+    PageTitle("100% route", "Every item in the order you'd pick it up. Press A on an item to check it off.")
+    Panel(stripe = Palette.accent) {
+        LabeledLine("Progress", "${progress.countDone(all.map { it.id })} of ${all.size} items", Palette.accent)
+        val next = all.firstOrNull { !progress.isDone(it.id) }
+        if (next != null) LabeledLine("Next", "${next.name} (${next.area.label}), ${MzmRoute.legOf.getValue(next.id).title}", Palette.text)
+        Lines(
+            listOf(
+                "No sequence breaks needed. Items that need Chozodia gear wait for the cleanup trip near the end.",
+                "Follows Metroid Recon's 100% walkthrough.",
+            ),
+        )
+    }
+    MzmRoute.legs.forEachIndexed { i, leg ->
+        Panel(stripe = Palette.accent) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${i + 1}. ${leg.title}", color = Palette.text, fontFamily = Condensed, fontSize = 18.sp, modifier = Modifier.weight(1f))
+                Text(legProgress(leg, progress), color = Palette.muted, fontSize = 14.sp)
+            }
+            Text(leg.note, color = Palette.muted, fontSize = 14.sp)
+            EnergyCells(
+                colors = leg.itemIds.map { MzmItems.byId.getValue(it).kind.color },
+                filled = leg.itemIds.map { progress.isDone(it) },
+                cellWidth = 8.dp, cellHeight = 18.dp,
+            )
+        }
+    }
+}
+
+@Composable
+fun LegJumpDetail(progress: ProgressStore, onJump: (Leg) -> Unit) {
+    PageTitle("Jump to trip", "Press A or Select to open the list, or tap a trip here.")
+    MzmRoute.legs.forEachIndexed { i, leg ->
+        Panel(stripe = Palette.accent, onClick = { onJump(leg) }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${i + 1}. ${leg.title}", color = Palette.text, fontFamily = Condensed, fontSize = 19.sp, modifier = Modifier.weight(1f))
+                Text(legProgress(leg, progress), color = Palette.muted, fontSize = 14.sp)
+            }
+        }
+    }
 }

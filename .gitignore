@@ -11,3 +11,7 @@
 .kotlin/
 *.jks
 *.keystore
+# MZM map tools: reference image (not ours) and previews
+tools/mzm-maps/ref/
+tools/mzm-maps/out/
+__pycache__/

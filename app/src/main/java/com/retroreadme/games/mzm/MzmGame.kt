@@ -22,7 +22,7 @@ import com.retroreadme.ui.MasterItem
 import com.retroreadme.ui.MenuOption
 import android.view.KeyEvent as AndroidKeyEvent
 
-/** Metroid: Zero Mission: every one of the 100 items, by area. */
+/** Metroid: Zero Mission: every one of the 100 items, in route order and by area. */
 object MzmGame {
     val game = Game(
         id = "mzm",
@@ -31,13 +31,79 @@ object MzmGame {
         badge = "MZM",
         palette = MzmPalette,
         about = listOf(
-            "All 100 items by area: 14 upgrades, 12 Energy Tanks, 50 Missile, 15 Super Missile and 9 Power Bomb Tanks.",
+            "All 100 items in 100% route order, and by area: 14 upgrades, 12 Energy Tanks, 50 Missile, 15 Super Missile and 9 Power Bomb Tanks.",
             "Upgrade route, bosses, Shinespark and other techniques, and hints. Covers Normal and Hard.",
         ),
         checklist = MzmItems.all.map { CheckItem(it.id, it.kind.color) },
         celebrationTitle = "100% items",
         celebrationMessage = "Every upgrade and every tank on Zebes.\nSee you next mission.",
         tabs = listOf(
+            GameTab("Route", MZM_OVERVIEW_KEY) { ctx ->
+                val progress = ctx.progress
+                val items = MzmRoute.items
+                var menuOpen by remember { mutableStateOf(false) }
+                // Bumped after every jump or cancel so the list takes focus back.
+                var jumps by remember { mutableIntStateOf(0) }
+
+                fun jumpTo(leg: Leg) {
+                    ctx.onSelect(leg.itemIds.first())
+                    menuOpen = false
+                    jumps++
+                }
+
+                val rows = listOf(
+                    MasterItem(MZM_OVERVIEW_KEY, "Progress", "${progress.countDone(items.map { it.id })} of ${items.size} items"),
+                    MasterItem(MZM_JUMP_KEY, "Jump to trip", "A or Select", expanded = false),
+                ) + items.map { item ->
+                    val leg = MzmRoute.legOf.getValue(item.id)
+                    MasterItem(
+                        item.id, item.name, "${item.area.label} · ${itemSubtitle(item)}",
+                        cells = listOf(item.kind.color) to listOf(progress.isDone(item.id)),
+                        groupHeader = if (leg.itemIds.first() == item.id) "${MzmRoute.legs.indexOf(leg) + 1}. ${leg.title}" else null,
+                    )
+                }
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .onPreviewKeyEvent { event ->
+                            if (event.type == KeyEventType.KeyDown && !menuOpen &&
+                                event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_BUTTON_SELECT
+                            ) {
+                                menuOpen = true
+                                true
+                            } else {
+                                false
+                            }
+                        },
+                ) {
+                    MasterDetail(
+                        items = rows, selectedKey = ctx.selectedKey, onSelect = ctx.onSelect,
+                        detailScroll = ctx.detailScroll, onDetailViewport = ctx.onDetailViewport,
+                        onActivate = { k -> if (k == MZM_JUMP_KEY) menuOpen = true },
+                        footer = GUIDE_FOOTER + "\nSelect jumps to a trip.",
+                        focusRequestKey = jumps.takeIf { it > 0 },
+                    ) { k ->
+                        when (k) {
+                            MZM_OVERVIEW_KEY -> RouteOverviewDetail(progress)
+                            MZM_JUMP_KEY -> LegJumpDetail(progress) { jumpTo(it) }
+                            else -> ItemDetail(MzmItems.byId.getValue(k), progress)
+                        }
+                    }
+                    if (menuOpen) {
+                        ListMenu(
+                            title = "Jump to trip",
+                            options = MzmRoute.legs.mapIndexed { i, leg -> MenuOption(leg.id, "${i + 1}. ${leg.title}", legProgress(leg, progress)) },
+                            currentId = MzmRoute.legOf[ctx.selectedKey]?.id,
+                            onPick = { id -> jumpTo(MzmRoute.legs.first { it.id == id }) },
+                            onCancel = {
+                                menuOpen = false
+                                jumps++
+                            },
+                        )
+                    }
+                }
+            },
+
             GameTab("Areas", MZM_OVERVIEW_KEY) { ctx ->
                 val progress = ctx.progress
                 val items = MzmItems.all
