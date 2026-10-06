@@ -5,6 +5,14 @@ screen and driven entirely by its controls. Runs on Android 8.0 (API 26) and up.
 
 Games: Mega Man X2 (SNES), Super Mario World (SNES), Kirby's Dream Land 3 (SNES), Wario Land 4 (GBA, Normal and Hard), Metroid: Zero Mission (GBA), Castlevania: Aria of Sorrow (GBA).
 
+## Web version
+
+`docs/` is a web version of every guide for phones and browsers, served by GitHub Pages. It works
+offline once loaded and can be added to an iPhone's Home Screen (Share > Add to Home Screen).
+Checkmarks are saved per device. Its data is exported from the guide content:
+
+    gradle :app:testDebugUnitTest --tests com.retroreadme.web.WebExport
+
 ## Build
 
 1. Open this folder in Android Studio and let it sync (it will fetch Gradle 8.11.1 and the Android plugin).

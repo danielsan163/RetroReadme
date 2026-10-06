@@ -62,7 +62,8 @@ val Palette: GuidePalette
     get() = LocalPalette.current
 
 /** Condensed bold for headings, echoing the slanted, tight lettering of retro game logos. */
-val Condensed = FontFamily(AndroidTypeface.create("sans-serif-condensed", AndroidTypeface.BOLD))
+// Lazy so loading this file off-device (the web export in src/test) doesn't need Android fonts.
+val Condensed by lazy { FontFamily(AndroidTypeface.create("sans-serif-condensed", AndroidTypeface.BOLD)) }
 
 @Composable
 fun GuideTheme(palette: GuidePalette, content: @Composable () -> Unit) {

@@ -29,6 +29,8 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
+    // The web export (src/test) loads guide content on the JVM; stubbed Android calls return defaults.
+    testOptions { unitTests.isReturnDefaultValues = true }
 }
 
 dependencies {
@@ -39,4 +41,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
+
+    // Test-only: runs the web export (see src/test/.../web/WebExport.kt). Not part of the app.
+    testImplementation("junit:junit:4.13.2")
 }
