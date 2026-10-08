@@ -2,6 +2,8 @@
 
 ## v0.3.0
 
+- Metroid: Zero Mission: item directions now name rooms by their map code (e.g. "the long corridor leading to Norfair's elevator (BR-36)"), and every item's text names the room it's in.
+- Metroid: Zero Mission: Shinespark items suggest looking up a video (with a YouTube search to use; a tappable link on the web), and the Shinespark technique page says the same.
 - Launcher: titles stay on one line (a long one scrolls while it's highlighted) with a fixed slot for a bigger completion star. Guides with several difficulties (Wario Land 4) get a silver star once any difficulty is complete, and gold once they all are.
 - Metroid: Zero Mission: removed the "worth confirming" notes after a full 100% playthrough.
 - Wario Land 4: removed the "worth confirming" note on Hard mode pages.

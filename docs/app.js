@@ -256,6 +256,10 @@
     }
     if (x.count) return `<div class="x ${x.style || ""}">${esc(fmt(g.id, x.count.ids, x.count.fmt))}</div>`;
     if (x.meter) return meterHtml(g.id, x.meter.ids, x.meter.colors);
+    if (x.video) {
+      const url = "https://www.youtube.com/results?search_query=" + encodeURIComponent(x.video.q);
+      return `<div class="x video">${esc(x.video.x)} <a href="${url}" target="_blank" rel="noopener" data-stop>Search YouTube for “${esc(x.video.q)}”</a></div>`;
+    }
     if (x.next) {
       const prog = progress.load(g.id);
       const n = x.next.items.find(([id]) => !prog[id]);
@@ -267,6 +271,8 @@
 
   function wireDetail(g, r) {
     const detail = app.querySelector(".detail");
+    // Links inside a checkable panel shouldn't toggle it.
+    detail.querySelectorAll("[data-stop]").forEach(a => a.addEventListener("click", ev => ev.stopPropagation()));
     detail.querySelectorAll("[data-check]").forEach(el => el.onclick = () => {
       const before = isComplete(g);
       progress.toggle(g.id, el.dataset.check);

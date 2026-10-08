@@ -49,4 +49,5 @@ https://claude.ai/share/e3dcd836-b418-4f2d-a27d-e37c1851696d
   as new entries; the soul ids must stay unchanged), and it still needs a Bosses tab with strategies.
 - Metroid: Zero Mission: guide assumes Hard mode items are in the same places; unconfirmed.
 - Metroid: Zero Mission maps: Chozodia (ship middle and Ruins maze) is the least certain
-  transcription; check room splits against the in-game map. Item steps don't use room codes yet.
+  transcription; check room splits against the in-game map. Item steps cite room codes, so
+  re-check those steps if a room is split, merged or renumbered.

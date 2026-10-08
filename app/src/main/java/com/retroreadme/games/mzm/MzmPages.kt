@@ -164,6 +164,10 @@ object MzmPages {
                 "Shinesparking into a slope turns back into a run, so you can crouch again and re-store the charge. That's how the long multi-room sparks are done.",
                 "You can also launch in mid-air: spin-jump and press A while charged.",
             ), numbered = true),
+            Section("Watch it first", listOf(
+                "The steps for the Shinespark items work, but they're hard to follow from text while you're playing, especially the long multi-room ones.",
+                "A short video makes the timing and positions obvious. Each Shinespark item's page suggests a YouTube search for it.",
+            ), tone = Tone.SECRET),
         )),
         MzmPage("t_bombjump", "Bomb jumping", "Reaching high places early", listOf(
             Section(null, listOf(

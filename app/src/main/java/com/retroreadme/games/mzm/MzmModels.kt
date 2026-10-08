@@ -32,7 +32,15 @@ data class Item(
     val steps: List<String>,
     /** Needs gear you only get in Chozodia (Power Bombs, Gravity Suit, Space Jump...). */
     val late: Boolean = false,
-)
+) {
+    /** Shinespark items read badly mid-game; their pages suggest a video. */
+    val needsShinespark: Boolean get() = SHINESPARK in needs
+
+    /** A YouTube search that finds a video of this item. */
+    val videoSearch: String get() = "Metroid Zero Mission ${area.label} $name"
+}
+
+const val SHINESPARK = "Shinespark"
 
 data class Boss(
     val id: String,

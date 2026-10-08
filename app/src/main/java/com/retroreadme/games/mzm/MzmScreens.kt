@@ -65,6 +65,12 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
             }
         }
         Lines(item.steps, numbered = item.steps.size > 1, marker = item.kind.color)
+        if (item.needsShinespark) {
+            Text(
+                "These steps work, but Shinesparks are hard to follow from text mid-game. A video is easier: search YouTube for \"${item.videoSearch}\".",
+                color = Palette.secret, fontSize = 14.sp, lineHeight = 20.sp,
+            )
+        }
     }
     if (room != null) {
         // Close-up by default; A switches to the whole area and back.

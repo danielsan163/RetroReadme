@@ -444,6 +444,7 @@ private fun Page.mzmItem(item: com.retroreadme.games.mzm.Item) {
         check(item.name, "Collected", "Not collected yet")
         tags((if (item.late) listOf("After Chozodia" to WARN) else emptyList()) + item.needs.map { it to ACCENT })
         lines(item.steps, numbered = item.steps.size > 1, marker = c)
+        if (item.needsShinespark) video("These steps work, but Shinesparks are hard to follow from text mid-game. A video is easier:", item.videoSearch)
     }
     map(item.area.name, item.id)
 }

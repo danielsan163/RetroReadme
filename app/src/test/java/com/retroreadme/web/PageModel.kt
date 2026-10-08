@@ -140,6 +140,9 @@ class PanelB {
         parts += mapOf("count" to mapOf("ids" to ids, "fmt" to fmt), "style" to style)
     }
 
+    /** A note with a YouTube search link (plain text on Android). */
+    fun video(text: String, query: String) { parts += mapOf("video" to mapOf("x" to text, "q" to query)) }
+
     fun meter(ids: List<String>, colors: List<String>) { parts += mapOf("meter" to mapOf("ids" to ids, "colors" to colors)) }
 
     /** Live "next unchecked item" line from an ordered list of ids and labels. */
