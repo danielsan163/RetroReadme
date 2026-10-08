@@ -32,8 +32,6 @@ data class Item(
     val steps: List<String>,
     /** Needs gear you only get in Chozodia (Power Bombs, Gravity Suit, Space Jump...). */
     val late: Boolean = false,
-    /** Only one of the two guides covers this item. */
-    val confirm: Boolean = false,
 )
 
 data class Boss(
@@ -44,8 +42,6 @@ data class Boss(
     val lines: List<String>,
     val weakPoint: String,
     val strategy: List<String>,
-    /** Only one of the two boss guides covers this fight. */
-    val confirm: Boolean = false,
 )
 
 data class MzmPage(val id: String, val title: String, val subtitle: String, val sections: List<Section>)

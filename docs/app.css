@@ -71,7 +71,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .row .chev { color: var(--muted); flex: none; }
 .cells { display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end; max-width: 45%; }
 .cell { width: 8px; height: 16px; border-radius: 1px; }
-.star { color: #F5D547; margin-left: 6px; }
 
 /* ---------------------------------------------------------------- Detail */
 .backrow { margin: -4px 0 6px; }
@@ -140,7 +139,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .game:active { background: var(--sel); }
 .game .badge { background: var(--ga); min-width: 46px; text-align: center; }
 .game .txt { flex: 1; min-width: 0; }
-.game .t { font: 700 18px/1.2 var(--cond); }
+.game .t { font: 700 18px/1.2 var(--cond); display: flex; align-items: center; gap: 8px; }
+.tt { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
+.tt > span { display: inline-block; }
+.tt.scroll > span { animation: titlescroll 9s ease-in-out infinite alternate; }
+@keyframes titlescroll { 0%, 20% { transform: translateX(0); } 80%, 100% { transform: translateX(var(--over)); } }
+@media (prefers-reduced-motion: reduce) { .tt.scroll > span { animation: none; } .tt > span { display: inline; } .tt { text-overflow: ellipsis; } }
+.starslot { width: 22px; height: 22px; flex: none; display: grid; place-items: center; }
+.pstar { width: 22px; height: 22px; display: block; }
 .game .s { font-size: 13px; color: var(--muted); }
 .game.sub { padding-left: 34px; }
 .foot { padding: 18px 14px; font-size: 13px; color: var(--muted); }

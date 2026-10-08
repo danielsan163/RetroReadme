@@ -13,6 +13,8 @@ import kotlin.math.floor
 
 private val StarFill = Color(0xFFF8D830)
 private val StarShade = Color(0xFFC89010)
+private val SilverFill = Color(0xFFDDE2EA)
+private val SilverShade = Color(0xFF8C95A3)
 
 /**
  * 9×9 pixel star: # = fill, s = shade, . = empty.
@@ -30,9 +32,9 @@ private val STAR = listOf(
     ".#.....#.",
 )
 
-/** A small yellow pixel-art star, used to mark a fully checked-off guide. */
+/** A pixel-art star marking a checked-off guide: gold when complete, [silver] when partly (some difficulties). */
 @Composable
-fun PixelStar(size: Dp = 16.dp, modifier: Modifier = Modifier) {
+fun PixelStar(size: Dp = 16.dp, modifier: Modifier = Modifier, silver: Boolean = false) {
     Canvas(modifier.size(size)) {
         val px = floor(minOf(this.size.width, this.size.height) / STAR.size).coerceAtLeast(1f)
         // Center the grid in the canvas.
@@ -41,8 +43,8 @@ fun PixelStar(size: Dp = 16.dp, modifier: Modifier = Modifier) {
         STAR.forEachIndexed { y, row ->
             row.forEachIndexed { x, ch ->
                 val color = when (ch) {
-                    '#' -> StarFill
-                    's' -> StarShade
+                    '#' -> if (silver) SilverFill else StarFill
+                    's' -> if (silver) SilverShade else StarShade
                     else -> null
                 }
                 if (color != null) {

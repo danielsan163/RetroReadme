@@ -1,16 +1,18 @@
 package com.retroreadme.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,19 +37,25 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 const val GUIDE_FOOTER =
     "D-pad moves, A selects or checks off, B goes back.\nL1 and R1 switch tabs, L2 and R2 page the right side."
+
+/** Completion star on a launcher row: none yet, some difficulties done (silver), or all done (gold). */
+enum class Star { NONE, SILVER, GOLD }
+
+private val STAR_SLOT = 20.dp
 
 data class MasterItem(
     val key: String,
@@ -69,8 +78,11 @@ data class MasterItem(
     val outerLines: List<Boolean> = emptyList(),
     /** For rows that open and close a nested list: true when open. Null for ordinary rows. */
     val expanded: Boolean? = null,
-    /** Draws a pixel star after the title (the launcher uses it for fully completed guides). */
-    val starred: Boolean = false,
+    /**
+     * Launcher rows: reserves a slot after the title for a completion star and keeps the title on
+     * one line (scrolling when selected if it's too long). Null = ordinary row, no slot.
+     */
+    val star: Star? = null,
 )
 
 /**
@@ -200,6 +212,7 @@ fun MasterDetail(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MasterRow(
     item: MasterItem,
@@ -237,11 +250,27 @@ private fun MasterRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                if (item.star == null) {
                     Text(item.title, color = Palette.text, fontSize = 17.sp, fontFamily = Condensed)
-                    if (item.starred) {
-                        Spacer(Modifier.width(6.dp))
-                        PixelStar(16.dp)
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.weight(1f)) {
+                            if (selected) {
+                                Text(
+                                    item.title, color = Palette.text, fontSize = 17.sp, fontFamily = Condensed,
+                                    maxLines = 1, softWrap = false,
+                                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE, initialDelayMillis = 800),
+                                )
+                            } else {
+                                Text(
+                                    item.title, color = Palette.text, fontSize = 17.sp, fontFamily = Condensed,
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                        Box(Modifier.padding(start = 6.dp).size(STAR_SLOT), contentAlignment = Alignment.Center) {
+                            if (item.star != Star.NONE) PixelStar(STAR_SLOT, silver = item.star == Star.SILVER)
+                        }
                     }
                 }
                 if (item.subtitle != null) {

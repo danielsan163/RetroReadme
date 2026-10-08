@@ -43,16 +43,6 @@ private fun Wl4Item.title() = when (kind) {
 }
 
 @Composable
-private fun HardNote(mode: Mode) {
-    if (mode == Mode.HARD) {
-        Text(
-            "Hard locations come from one walkthrough. Worth confirming on the Nova.",
-            color = Palette.warning, fontSize = 14.sp,
-        )
-    }
-}
-
-@Composable
 fun ItemPanel(item: Wl4Item, done: Boolean, onToggle: () -> Unit) {
     Panel(stripe = item.color, onClick = onToggle) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -73,7 +63,6 @@ fun ItemPanel(item: Wl4Item, done: Boolean, onToggle: () -> Unit) {
 fun LevelDetail(level: Wl4Level, mode: Mode, progress: ProgressStore) {
     val d = level.data(mode)
     PageTitle(level.name, "${level.passage.label} · ${mode.label}")
-    HardNote(mode)
     // Panels follow the route through the level, with the frog switch in its place.
     val items = level.items(mode).associateBy { it.id.substringAfterLast('_') }
     var switchShown = false
@@ -117,7 +106,6 @@ private fun SwitchPanel(d: ModeData) {
 fun CdDetail(level: Wl4Level, mode: Mode, progress: ProgressStore) {
     val item = level.items(mode).first { it.kind == ItemKind.CD }
     PageTitle(level.name, "${level.passage.label} · ${mode.label}")
-    HardNote(mode)
     ItemPanel(item, progress.isDone(item.id)) { progress.toggle(item.id) }
     Text(
         "The level's jewel pieces and Keyzer are on its page in the Passages tab.",
@@ -131,7 +119,6 @@ fun Wl4OverviewDetail(mode: Mode, progress: ProgressStore) {
     fun count(kind: ItemKind) = all.filter { it.kind == kind }.map { it.id }
 
     PageTitle("Collection", "${mode.label} mode. Press A on an item inside a level to check it off.")
-    HardNote(mode)
     Panel(stripe = Palette.accent) {
         TagRow {
             ItemKind.entries.forEach { kind ->

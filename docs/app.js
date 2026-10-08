@@ -77,6 +77,9 @@
     document.title = "Retro README";
     const collapsed = store.get("rr:collapsed", []);
     const done = g => g.checklist.length && progress.count(g.id, g.checklist.map(c => c[0])) === g.checklist.length;
+    // Gold when every guide is complete, silver when only some are (difficulty groups).
+    const starOf = gs => { const n = gs.filter(done).length; return n === 0 ? "" : n === gs.length ? "gold" : "silver"; };
+    const title = (text, star) => `<div class="t"><span class="tt"><span>${esc(text)}</span></span><span class="starslot">${star ? pixelStar(star) : ""}</span></div>`;
     const sub = g => g.checklist.length ? `${progress.count(g.id, g.checklist.map(c => c[0]))} of ${g.checklist.length}` : "";
     let html = `<div class="screen launch"><header class="topbar"><span class="badge">RR</span><h1>Retro README</h1></header><div class="pane">`;
     for (const [plat, label] of idx.platforms) {
@@ -92,17 +95,18 @@
           if (seen.has(g.group)) continue;
           seen.add(g.group);
           const members = games.filter(x => x.group === g.group);
-          html += `<div class="game" style="--ga:${g.accent}"><span class="badge">${esc(g.badge.split(" ")[0])}</span><div class="txt"><div class="t">${esc(g.group)}${members.every(done) ? '<span class="star">★</span>' : ""}</div><div class="s">${members.length} checklists: ${esc(members.map(m => m.variant).join(" and "))}</div></div></div>`;
+          html += `<div class="game" style="--ga:${g.accent}"><span class="badge">${esc(g.badge.split(" ")[0])}</span><div class="txt">${title(g.group, starOf(members))}<div class="s">${members.length} checklists: ${esc(members.map(m => m.variant).join(" and "))}</div></div></div>`;
           for (const m of members) {
-            html += `<button class="game sub" data-game="${m.id}" style="--ga:${m.accent}"><div class="txt"><div class="t">${esc(m.variant || m.title)}${done(m) ? '<span class="star">★</span>' : ""}</div><div class="s">${sub(m)}</div></div><span class="chev">›</span></button>`;
+            html += `<button class="game sub" data-game="${m.id}" style="--ga:${m.accent}"><div class="txt">${title(m.variant || m.title, starOf([m]))}<div class="s">${sub(m)}</div></div><span class="chev">›</span></button>`;
           }
         } else {
-          html += `<button class="game" data-game="${g.id}" style="--ga:${g.accent}"><span class="badge">${esc(g.badge)}</span><div class="txt"><div class="t">${esc(g.title)}${done(g) ? '<span class="star">★</span>' : ""}</div><div class="s">${sub(g)}${sub(g) ? " · " : ""}${esc(g.about[0] || "")}</div></div><span class="chev">›</span></button>`;
+          html += `<button class="game" data-game="${g.id}" style="--ga:${g.accent}"><span class="badge">${esc(g.badge)}</span><div class="txt">${title(g.title, starOf([g]))}<div class="s">${sub(g)}${sub(g) ? " · " : ""}${esc(g.about[0] || "")}</div></div><span class="chev">›</span></button>`;
         }
       }
     }
     html += `<p class="foot">Checkmarks are saved on this device. Add this page to your Home Screen to use it offline.</p></div></div>`;
     app.innerHTML = html;
+    scrollLongTitles();
     app.querySelectorAll("[data-game]").forEach(b => b.onclick = () => go(gameHash(b.dataset.game, 0)));
     app.querySelectorAll("[data-plat]").forEach(b => b.onclick = () => {
       const c = store.get("rr:collapsed", []);
@@ -110,6 +114,25 @@
       store.set("rr:collapsed", c.includes(p) ? c.filter(x => x !== p) : [...c, p]);
       renderLauncher();
     });
+  }
+
+  /** The app's 9x9 pixel star, gold or silver. */
+  const STAR = ["....#....", "....#....", "...###...", "####s####", ".###s###.", "..##s##..", "..#sss#..", ".##s.s##.", ".#.....#."];
+  function pixelStar(kind) {
+    const [fill, shade] = kind === "silver" ? ["#DDE2EA", "#8C95A3"] : ["#F8D830", "#C89010"];
+    let rects = "";
+    STAR.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch !== ".") rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${ch === "#" ? fill : shade}"/>`;
+    }));
+    return `<svg class="pstar" viewBox="0 0 9 9" shape-rendering="crispEdges" role="img" aria-label="${kind === "silver" ? "Partly complete" : "Complete"}">${rects}</svg>`;
+  }
+
+  /** Titles too long for their slot scroll back and forth instead of wrapping. */
+  function scrollLongTitles() {
+    requestAnimationFrame(() => app.querySelectorAll(".tt").forEach(box => {
+      const over = box.firstElementChild.scrollWidth - box.clientWidth;
+      if (over > 2) { box.classList.add("scroll"); box.style.setProperty("--over", -over + "px"); }
+    }));
   }
 
   // ---------------------------------------------------------------- Guide

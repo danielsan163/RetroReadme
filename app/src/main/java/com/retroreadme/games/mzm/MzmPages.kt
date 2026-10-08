@@ -73,7 +73,6 @@ object MzmPages {
             "b_larvae", "Kiru Giru larvae", Area.NORFAIR,
             listOf("Two caterpillar larvae in a long tunnel in Norfair; the door locks behind you. Beating both opens the right side and reveals Energy Tank 1 in the ceiling."),
             weakPoint = "Their undersides",
-            confirm = true,
             strategy = listOf(
                 "The first larva: fire the Wave Beam down through the floor into its underside.",
                 "The second charges at you when you get close; back off left. Shooting its face only pushes it back.",

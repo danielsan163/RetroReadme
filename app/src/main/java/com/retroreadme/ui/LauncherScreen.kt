@@ -152,7 +152,7 @@ fun LauncherScreen(
                         add(
                             MasterItem(
                                 g.id, g.title, progressLine(g, stores),
-                                depth = 1, lastChild = lastInPlatform, starred = isComplete(g, stores),
+                                depth = 1, lastChild = lastInPlatform, star = starOf(listOf(g), stores),
                             )
                         )
                     } else {
@@ -161,8 +161,8 @@ fun LauncherScreen(
                             MasterItem(
                                 e.key, e.title, e.games.joinToString(" · ") { it.variant ?: it.title },
                                 depth = 1, lastChild = lastInPlatform, expanded = open,
-                                // A group earns its star once every guide in it is complete.
-                                starred = e.games.all { isComplete(it, stores) },
+                                // Silver once any difficulty is complete, gold once they all are.
+                                star = starOf(e.games, stores),
                             )
                         )
                         if (open) {
@@ -172,7 +172,7 @@ fun LauncherScreen(
                                         g.id, g.variant ?: g.title, progressLine(g, stores),
                                         depth = 1, lastChild = j == e.games.lastIndex,
                                         outerLines = listOf(!lastInPlatform),
-                                        starred = isComplete(g, stores),
+                                        star = starOf(listOf(g), stores),
                                     )
                                 )
                             }
@@ -228,6 +228,16 @@ fun LauncherScreen(
             },
         )
     }
+    }
+}
+
+/** Gold when every guide is complete, silver when only some are (difficulty groups), else none. */
+private fun starOf(games: List<Game>, stores: Map<String, ProgressStore>): Star {
+    val done = games.count { isComplete(it, stores) }
+    return when {
+        done == 0 -> Star.NONE
+        done == games.size -> Star.GOLD
+        else -> Star.SILVER
     }
 }
 

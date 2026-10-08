@@ -65,12 +65,6 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
             }
         }
         Lines(item.steps, numbered = item.steps.size > 1, marker = item.kind.color)
-        if (item.confirm) {
-            Text(
-                "Only one of the two guides covers this item. Worth confirming on the Nova.",
-                color = Palette.warning, fontSize = 14.sp,
-            )
-        }
     }
     if (room != null) {
         // Close-up by default; A switches to the whole area and back.
@@ -160,12 +154,6 @@ fun BossDetail(boss: Boss) {
     Panel(stripe = Palette.warning) {
         PanelHeading("Strategy", Palette.warning)
         Lines(boss.strategy, numbered = true, marker = Palette.warning)
-        if (boss.confirm) {
-            Text(
-                "Only one of the two boss guides covers this fight. Worth confirming on the Nova.",
-                color = Palette.warning, fontSize = 14.sp,
-            )
-        }
     }
     Panel(stripe = Palette.line) {
         PanelHeading("Where and why")

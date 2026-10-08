@@ -16,7 +16,7 @@ import com.retroreadme.games.mzm.Kind.SUPER
 /**
  * All 100 items: 14 upgrades, 12 Energy Tanks, 50 Missile Tanks, 15 Super Missile Tanks and
  * 9 Power Bomb Tanks. Numbering within each area follows Metroid Recon's lists. Locations were
- * checked against Metroid Recon and Omega Metroid; items only one of them covers are marked confirm.
+ * checked against Metroid Recon and Omega Metroid, then confirmed in a full 100% playthrough.
  */
 object MzmItems {
 
@@ -31,8 +31,8 @@ object MzmItems {
 
     private fun t(
         area: Area, kind: Kind, n: Int, needs: List<String>, vararg steps: String,
-        late: Boolean = false, confirm: Boolean = false,
-    ) = Item("${code.getValue(area)}_${letter.getValue(kind)}$n", area, kind, "${kind.label} $n", needs, steps.toList(), late, confirm)
+        late: Boolean = false,
+    ) = Item("${code.getValue(area)}_${letter.getValue(kind)}$n", area, kind, "${kind.label} $n", needs, steps.toList(), late)
 
     private const val SHINE = "Shinespark"
 
@@ -189,35 +189,24 @@ object MzmItems {
         t(RIDLEY, ENERGY, 3, listOf("Bombs"),
             "In the long green corridor with bug pipes (right from the lower-middle Save Room), bomb the left side of the alcove near the entrance to open a tunnel down to it."),
 
-        t(RIDLEY, MISSILE, 1, listOf("Super Missiles", "Bombs"), "In the tall shaft with a Save Room halfway down, roll through the narrow tunnels in the floor near the two doors; it's on a pillar below.",
-            confirm = true),
+        t(RIDLEY, MISSILE, 1, listOf("Super Missiles", "Bombs"), "In the tall shaft with a Save Room halfway down, roll through the narrow tunnels in the floor near the two doors; it's on a pillar below."),
         t(RIDLEY, MISSILE, 2, listOf("Speed Booster", SHINE, "Power Grip"), "Break into the roof of the long corridor right of the Map Room, run left, store a Shinespark, and release it off the slope by the Map Room door to smash through the floor of the shaft beyond.",
-            "Through the door at the bottom, Shinespark up the left side and work right through the tunnels. Shoot the blocks below at an angle, then roll quickly over crumbling blocks to the lower tank.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 3, listOf("Speed Booster", SHINE, "Power Grip"), "The upper tank in the same room as Missile Tank 2: stand on the middle block, clear the two blocks above, hop off before it crumbles, and repeat once it reappears to shoot your way up.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 4, emptyList(), "On a pillar in plain view in the giant corridor right of the Map Room.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 5, listOf("Bombs"), "From the tall shaft past the long corridor's Save Room, take the second door up on the left. At the last hole near the left door, drop hugging the right side, crawl through, and bomb into the fake lava pit; the tank is in its right corner.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 6, listOf("Bombs"), "One room left of Missile Tank 5, guarded by bouncing enemies. Bomb up through the floor from underneath.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 7, listOf("Ice Beam"), "Next room left: on a pillar over a big hole. Freeze one of the creatures circling the pillar at its lower right and use it as a step.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 8, listOf("Ice Beam", "Power Grip"), "From Missile Tank 7's pillar, drop left while holding left to grab the ledge by the door. In the room with Super Missile Tank 3, enter the hidden tunnel above the right door; the tank is in the hidden room above.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 9, listOf("Bombs"), "Next room left: roll through the tunnel and break the blocks on the left of the structure. Watch the crumbling blocks under the left edge.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 10, listOf("Bombs"), "Same room: clear the left blocks, hang off the edge until a single block appears, stand on it, shoot down-right to open the corner, then roll down before the block reforms.",
-            confirm = true),
-        t(RIDLEY, MISSILE, 11, listOf("Ice Beam"), "From the Map Room, cross the long corridor, climb the tall shaft and go left. In the lava cavern, lure a bug from the pipe up under the ceiling opening, freeze it, and jump up to the hidden platform.",
-            confirm = true),
+            "Through the door at the bottom, Shinespark up the left side and work right through the tunnels. Shoot the blocks below at an angle, then roll quickly over crumbling blocks to the lower tank."),
+        t(RIDLEY, MISSILE, 3, listOf("Speed Booster", SHINE, "Power Grip"), "The upper tank in the same room as Missile Tank 2: stand on the middle block, clear the two blocks above, hop off before it crumbles, and repeat once it reappears to shoot your way up."),
+        t(RIDLEY, MISSILE, 4, emptyList(), "On a pillar in plain view in the giant corridor right of the Map Room."),
+        t(RIDLEY, MISSILE, 5, listOf("Bombs"), "From the tall shaft past the long corridor's Save Room, take the second door up on the left. At the last hole near the left door, drop hugging the right side, crawl through, and bomb into the fake lava pit; the tank is in its right corner."),
+        t(RIDLEY, MISSILE, 6, listOf("Bombs"), "One room left of Missile Tank 5, guarded by bouncing enemies. Bomb up through the floor from underneath."),
+        t(RIDLEY, MISSILE, 7, listOf("Ice Beam"), "Next room left: on a pillar over a big hole. Freeze one of the creatures circling the pillar at its lower right and use it as a step."),
+        t(RIDLEY, MISSILE, 8, listOf("Ice Beam", "Power Grip"), "From Missile Tank 7's pillar, drop left while holding left to grab the ledge by the door. In the room with Super Missile Tank 3, enter the hidden tunnel above the right door; the tank is in the hidden room above."),
+        t(RIDLEY, MISSILE, 9, listOf("Bombs"), "Next room left: roll through the tunnel and break the blocks on the left of the structure. Watch the crumbling blocks under the left edge."),
+        t(RIDLEY, MISSILE, 10, listOf("Bombs"), "Same room: clear the left blocks, hang off the edge until a single block appears, stand on it, shoot down-right to open the corner, then roll down before the block reforms."),
+        t(RIDLEY, MISSILE, 11, listOf("Ice Beam"), "From the Map Room, cross the long corridor, climb the tall shaft and go left. In the lava cavern, lure a bug from the pipe up under the ceiling opening, freeze it, and jump up to the hidden platform."),
         t(RIDLEY, MISSILE, 12, listOf("Speed Booster", SHINE, "Space Jump"), "Store a Shinespark on the long corridor's roof, release it through the Save Room into the shaft, and Shinespark into the wall opposite the first door up to reveal a hidden room.",
             "In the pipe room, charge again, morph into the gap by the right wall and Shinespark straight up. Follow the crumbling pipes, staying airborne with the Space Jump, then slip down past the narrow pillar on the left.",
-            confirm = true, late = true),
+            late = true),
         t(RIDLEY, MISSILE, 13, listOf("Speed Booster", SHINE), "Right after Missile Tank 12: charge from the right of that room, crouch under the small ceiling opening next door and Shinespark up.",
             "In the room to the right, run in shooting the blocks (take out the hidden Missile block), then jump just before the bump in the floor so your arc Shinesparks through the Speed Booster blocks. Very fiddly.",
-            confirm = true, late = true),
+            late = true),
 
         t(RIDLEY, SUPER, 1, listOf("Defeat Imago"),
             "Guarded by the giant wasp Imago; beating it gives you this tank. You'll likely get it first, since you need Super Missiles to go deeper."),
@@ -230,7 +219,7 @@ object MzmItems {
 
         t(TOURIAN, MISSILE, 1, listOf("Speed Booster", SHINE), "After the Ruins Test, go to the Save Room nearest Mother Brain's corridor and run left in the next corridor to charge.",
             "At Mother Brain's corridor, spin-jump until level with the top of the door and Shinespark left in mid-air, past her remains into the escape shaft and through the far wall.",
-            confirm = true, late = true),
+            late = true),
         t(TOURIAN, POWER_BOMB, 1, listOf("Super Missiles"),
             "Shoot a Super Missile into the floor right under Mother Brain's remains and drop into the room below."),
 
@@ -272,7 +261,7 @@ object MzmItems {
             late = true),
 
         t(CHOZODIA, MISSILE, 1, listOf("Fully powered suit"), "In the big shaft through the top right door of the water room next to the Chozo Warrior's room: in the small alcove on the left wall, blow the hidden Missile block and crawl in.",
-            confirm = true, late = true),
+            late = true),
 
         t(CHOZODIA, SUPER, 1, listOf("Speed Booster"), "After the Ruins Test, go down to the underwater part of the next room (blow the Missile blocks by the Save Room door) and run right along the bottom to smash through the wall.",
             late = true),

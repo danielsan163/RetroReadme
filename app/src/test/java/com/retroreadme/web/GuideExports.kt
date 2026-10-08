@@ -297,7 +297,6 @@ fun kdl3Tabs(): List<Tab> {
 
 fun wl4Tabs(mode: Mode): List<Tab> {
     val levels = Wl4Levels.all
-    fun Page.hardNote() { if (mode == Mode.HARD) note("Hard locations come from one walkthrough. Worth confirming in-game.", WARN) }
     fun Page.item(item: com.retroreadme.games.wl4.Wl4Item) {
         val title = when (item.kind) {
             ItemKind.JEWEL -> "Jewel piece ${item.number}"
@@ -318,7 +317,6 @@ fun wl4Tabs(mode: Mode): List<Tab> {
     val all = Wl4Levels.allItems(mode)
     val passages = Tab("Passages").apply {
         row(Row(OVERVIEW, "Collection", count = all.map { it.id } to "{d} of {n}"), Page("Collection", "${mode.label} mode. Tap an item inside a level to check it off.").apply {
-            hardNote()
             meters(
                 tags = ItemKind.entries.map { k -> Meter("${k.label}s", all.filter { it.kind == k }.map { it.id }, listOf(ACCENT)) },
                 rows = Passage.entries.map { p ->
@@ -334,7 +332,6 @@ fun wl4Tabs(mode: Mode): List<Tab> {
             val items = level.items(mode)
             row(Row(level.id, level.name, "Escape ${d.escapeTime}", group, cells = items.map { it.id to hex(it.color) }),
                 Page(level.name, "${level.passage.label} · ${mode.label}").apply {
-                    hardNote()
                     val byToken = items.associateBy { it.id.substringAfterLast('_') }
                     var switchShown = false
                     d.steps.forEach { token ->
@@ -353,7 +350,6 @@ fun wl4Tabs(mode: Mode): List<Tab> {
             val cd = level.items(mode).first { it.kind == ItemKind.CD }
             row(Row(level.id, level.name, null, group, cells = listOf(cd.id to hex(Wl4Colors.Cd)), subCheck = Triple(cd.id, "Collected", "Not yet")),
                 Page(level.name, "${level.passage.label} · ${mode.label}").apply {
-                    hardNote()
                     item(cd)
                     note("The level's jewel pieces and Keyzer are on its page in the Passages tab.")
                 })
@@ -448,7 +444,6 @@ private fun Page.mzmItem(item: com.retroreadme.games.mzm.Item) {
         check(item.name, "Collected", "Not collected yet")
         tags((if (item.late) listOf("After Chozodia" to WARN) else emptyList()) + item.needs.map { it to ACCENT })
         lines(item.steps, numbered = item.steps.size > 1, marker = c)
-        if (item.confirm) x("Only one of the two guides covers this item. Worth confirming in-game.", "warn")
     }
     map(item.area.name, item.id)
 }
@@ -517,7 +512,6 @@ fun mzmTabs(): List<Tab> {
                 panel(WARN) {
                     h("Strategy", WARN)
                     lines(b.strategy, numbered = true, marker = WARN)
-                    if (b.confirm) x("Only one of the two boss guides covers this fight. Worth confirming in-game.", "warn")
                 }
                 panel { h("Where and why"); lines(b.lines) }
             })

@@ -2,6 +2,9 @@
 
 ## v0.3.0
 
+- Launcher: titles stay on one line (a long one scrolls while it's highlighted) with a fixed slot for a bigger completion star. Guides with several difficulties (Wario Land 4) get a silver star once any difficulty is complete, and gold once they all are.
+- Metroid: Zero Mission: removed the "worth confirming" notes after a full 100% playthrough.
+- Wario Land 4: removed the "worth confirming" note on Hard mode pages.
 - New: a web version for phones (and any browser), with every guide, the launcher, checklists and the Metroid maps. Tap to check things off; progress is saved on that device. It works offline once loaded, and can be added to an iPhone's Home Screen.
 - Metroid: Zero Mission: new Route tab with all 100 items in the order you'd pick them up on a 100% run, split into 13 trips (Brinstar first steps, Crateria, Kraid's Lair and so on, through the cleanup at the end). A Jump to trip menu (A or Select) goes straight to any trip, and the Progress page shows what to grab next. No sequence breaks needed. The Areas tab is still there as a by-area list.
 - Metroid: Zero Mission: every item page now has a map of its area, with room outlines, doors (color-coded by what opens them), save and map rooms, elevators and every item, and the item's room highlighted. Collected items fade out. The map opens close up on the item's room with readable room numbers; press A on it to see the whole area and again to zoom back in. Rooms have codes like BR-07, numbered in the order the route reaches them, and each item shows its room code in the list.
