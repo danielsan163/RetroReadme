@@ -26,6 +26,10 @@ class WebExport {
         "wl4_hard" to { wl4Tabs(Mode.HARD) },
         "aos" to ::aosTabs,
         "mzm" to ::mzmTabs,
+        "mf" to ::mfTabs,
+        "sm" to ::smTabs,
+        "mmz" to ::mmzTabs,
+        "tmc" to ::tmcTabs,
     )
 
     @Test
@@ -39,7 +43,12 @@ class WebExport {
         games.forEach { g ->
             val guide = meta(g) + mapOf(
                 "tabs" to tabs.getValue(g.id)().map { it.json() },
-                "maps" to if (g.id == "mzm") mzmMaps() else null,
+                "maps" to when (g.id) {
+                    "mzm" -> mzmMaps()
+                    "mf" -> mfMaps()
+                    "sm" -> smMaps()
+                    else -> null
+                },
             )
             File(out, "${g.id}.json").writeText(toJson(guide).toString())
         }

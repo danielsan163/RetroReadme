@@ -12,6 +12,6 @@
 *.jks
 *.keystore
 # MZM map tools: reference image (not ours) and previews
-tools/mzm-maps/ref/
-tools/mzm-maps/out/
+tools/metroid-maps/games/*/ref/
+tools/metroid-maps/out/
 __pycache__/

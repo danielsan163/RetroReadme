@@ -3,9 +3,13 @@ package com.retroreadme.games
 import com.retroreadme.core.Game
 import com.retroreadme.games.aos.AosGame
 import com.retroreadme.games.kdl3.Kdl3Game
+import com.retroreadme.games.mf.MfGame
 import com.retroreadme.games.mmx2.Mmx2Game
+import com.retroreadme.games.mmz.MmzGame
 import com.retroreadme.games.mzm.MzmGame
+import com.retroreadme.games.sm.SmGame
 import com.retroreadme.games.smw.SmwGame
+import com.retroreadme.games.tmc.TmcGame
 import com.retroreadme.games.wl4.Wl4Game
 
 /**
@@ -20,6 +24,10 @@ object GameRegistry {
         Wl4Game.normal,
         Wl4Game.hard,
         MzmGame.game,
+        MfGame.game,
+        SmGame.game,
+        MmzGame.game,
+        TmcGame.game,
         AosGame.game,
     ).sortedWith(
         // Grouped by platform, then alphabetical by title. Guides in a group sort by the

@@ -1,4 +1,4 @@
-package com.retroreadme.games.mzm
+package com.retroreadme.games.mf
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,24 +28,23 @@ import com.retroreadme.ui.SectionPanel
 import com.retroreadme.ui.Tag
 import com.retroreadme.ui.TagRow
 
-const val MZM_OVERVIEW_KEY = "overview"
-const val MZM_JUMP_KEY = "jump"
+const val MF_OVERVIEW_KEY = "overview"
+const val MF_JUMP_KEY = "jump"
 
 fun itemSubtitle(item: Item): String {
     val needs = if (item.needs.isEmpty()) "Nothing special" else item.needs.joinToString(", ")
-    val room = MzmMaps.roomOf(item)?.code
-    return listOfNotNull(room, "After Chozodia".takeIf { item.late }, needs).joinToString(" · ")
+    return listOfNotNull(MfMaps.roomOf(item)?.code, needs).joinToString(" · ")
 }
 
-fun areaProgress(area: Area, progress: ProgressStore): String {
-    val ids = MzmItems.all.filter { it.area == area }.map { it.id }
+fun sectorProgress(sector: Sector, progress: ProgressStore): String {
+    val ids = MfItems.all.filter { it.sector == sector }.map { it.id }
     return "${progress.countDone(ids)} of ${ids.size}"
 }
 
 @Composable
 fun ItemDetail(item: Item, progress: ProgressStore) {
-    val room = MzmMaps.roomOf(item)
-    PageTitle(item.name, listOfNotNull(item.area.label, room?.code, item.kind.label).joinToString(" · "))
+    val room = MfMaps.roomOf(item)
+    PageTitle(item.name, listOfNotNull(item.sector.label, room?.code, item.kind.label).joinToString(" · "))
     val done = progress.isDone(item.id)
     Panel(stripe = item.kind.color, onClick = { progress.toggle(item.id) }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -58,12 +57,7 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
             }
             CheckBoxMark(done)
         }
-        if (item.needs.isNotEmpty() || item.late) {
-            TagRow {
-                if (item.late) Tag("After Chozodia", Palette.warning)
-                item.needs.forEach { Tag(it, Palette.accent) }
-            }
-        }
+        if (item.needs.isNotEmpty()) TagRow { item.needs.forEach { Tag(it, Palette.accent) } }
         Lines(item.steps, numbered = item.steps.size > 1, marker = item.kind.color)
         if (item.needsShinespark) {
             Text(
@@ -71,61 +65,28 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
                 color = Palette.secret, fontSize = 14.sp, lineHeight = 20.sp,
             )
         }
+        if (item.confirm) {
+            Text(
+                "Only one of the two guides backs this up. Worth confirming on the Nova.",
+                color = Palette.warning, fontSize = 14.sp,
+            )
+        }
     }
     if (room != null) {
-        // Close-up by default; A switches to the whole area and back.
+        // Close-up by default; A switches to the whole sector and back.
         var zoomed by remember(item.id) { mutableStateOf(true) }
         Panel(onClick = { zoomed = !zoomed }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${item.area.label} map · ${room.code}", color = Palette.accent, fontFamily = Condensed, fontSize = 17.sp, modifier = Modifier.weight(1f))
-                Text(if (zoomed) "A: whole area" else "A: close-up", color = Palette.muted, fontSize = 13.sp)
+                Text("${item.sector.label} map · ${room.code}", color = Palette.accent, fontFamily = Condensed, fontSize = 17.sp, modifier = Modifier.weight(1f))
+                Text(if (zoomed) "A: whole sector" else "A: close-up", color = Palette.muted, fontSize = 13.sp)
             }
-            MzmMapView(item, progress, zoomed)
+            MfMapView(item, progress, zoomed)
         }
     }
 }
 
 @Composable
-fun UpgradeDetail(item: Item, progress: ProgressStore) {
-    ItemDetail(item, progress)
-    MzmPages.unlocks[item.id]?.let { text ->
-        Panel(stripe = Palette.secret) {
-            PanelHeading("What it opens up", Palette.secret)
-            Text(text, color = Palette.text, fontSize = 16.sp, lineHeight = 22.sp)
-        }
-    }
-}
-
-@Composable
-fun MzmOverviewDetail(progress: ProgressStore) {
-    val all = MzmItems.all
-    PageTitle("Items", "Press A on an item to check it off.")
-    Panel(stripe = Palette.accent) {
-        TagRow {
-            Kind.entries.forEach { kind ->
-                val ids = all.filter { it.kind == kind }.map { it.id }
-                Tag("${kind.short} ${progress.countDone(ids)} of ${ids.size}", kind.color)
-            }
-        }
-        val late = all.filter { it.late }.map { it.id }
-        LabeledLine("Later", "${late.size - progress.countDone(late)} left that need Chozodia gear", Palette.warning)
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Area.entries.forEach { area ->
-                val items = all.filter { it.area == area }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.width(140.dp)) {
-                        Text(area.label, color = Palette.text, fontFamily = Condensed, fontSize = 17.sp)
-                        Text(areaProgress(area, progress), color = Palette.muted, fontSize = 13.sp)
-                    }
-                    EnergyCells(
-                        colors = items.map { it.kind.color },
-                        filled = items.map { progress.isDone(it.id) },
-                        cellWidth = 8.dp, cellHeight = 22.dp,
-                    )
-                }
-            }
-        }
-    }
+private fun ClearChecklist(progress: ProgressStore) {
     var armed by remember { mutableStateOf(false) }
     Panel(
         stripe = Palette.warning,
@@ -141,36 +102,47 @@ fun MzmOverviewDetail(progress: ProgressStore) {
 }
 
 @Composable
-fun AreaJumpDetail(progress: ProgressStore, onJump: (Area) -> Unit) {
-    PageTitle("Jump to area", "Press A or Select to open the list, or tap an area here.")
-    Area.entries.forEach { area ->
-        Panel(stripe = Palette.accent, onClick = { onJump(area) }) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(area.label, color = Palette.text, fontFamily = Condensed, fontSize = 19.sp, modifier = Modifier.weight(1f))
-                Text(areaProgress(area, progress), color = Palette.muted, fontSize = 14.sp)
+fun SectorsOverviewDetail(progress: ProgressStore) {
+    val all = MfItems.all
+    PageTitle("Items", "Press A on an item to check it off.")
+    Panel(stripe = Palette.accent) {
+        TagRow {
+            Kind.entries.forEach { kind ->
+                val ids = all.filter { it.kind == kind }.map { it.id }
+                Tag("${kind.short} ${progress.countDone(ids)} of ${ids.size}", kind.color)
+            }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Sector.entries.forEach { sector ->
+                val items = all.filter { it.sector == sector }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.width(150.dp)) {
+                        Text(sector.label, color = Palette.text, fontFamily = Condensed, fontSize = 17.sp)
+                        Text(sectorProgress(sector, progress), color = Palette.muted, fontSize = 13.sp)
+                    }
+                    EnergyCells(
+                        colors = items.map { it.kind.color },
+                        filled = items.map { progress.isDone(it.id) },
+                        cellWidth = 8.dp, cellHeight = 22.dp,
+                    )
+                }
             }
         }
     }
+    ClearChecklist(progress)
 }
 
 @Composable
-fun BossDetail(boss: Boss) {
-    PageTitle(boss.name, boss.area.label)
-    TagRow { Tag("Weak point: ${boss.weakPoint}", Palette.accent) }
-    Panel(stripe = Palette.warning) {
-        PanelHeading("Strategy", Palette.warning)
-        Lines(boss.strategy, numbered = true, marker = Palette.warning)
+fun SectorJumpDetail(progress: ProgressStore, onJump: (Sector) -> Unit) {
+    PageTitle("Jump to sector", "Press A or Select to open the list, or tap a sector here.")
+    Sector.entries.forEach { sector ->
+        Panel(stripe = Palette.accent, onClick = { onJump(sector) }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(sector.label, color = Palette.text, fontFamily = Condensed, fontSize = 19.sp, modifier = Modifier.weight(1f))
+                Text(sectorProgress(sector, progress), color = Palette.muted, fontSize = 14.sp)
+            }
+        }
     }
-    Panel(stripe = Palette.line) {
-        PanelHeading("Where and why")
-        Lines(boss.lines)
-    }
-}
-
-@Composable
-fun MzmPageDetail(page: MzmPage) {
-    PageTitle(page.title, page.subtitle)
-    page.sections.forEach { SectionPanel(it) }
 }
 
 fun legProgress(leg: Leg, progress: ProgressStore): String =
@@ -178,20 +150,20 @@ fun legProgress(leg: Leg, progress: ProgressStore): String =
 
 @Composable
 fun RouteOverviewDetail(progress: ProgressStore) {
-    val all = MzmRoute.items
+    val all = MfRoute.items
     PageTitle("100% route", "Every item in the order you'd pick it up. Press A on an item to check it off.")
     Panel(stripe = Palette.accent) {
         LabeledLine("Progress", "${progress.countDone(all.map { it.id })} of ${all.size} items", Palette.accent)
         val next = all.firstOrNull { !progress.isDone(it.id) }
-        if (next != null) LabeledLine("Next", "${next.name} (${next.area.label}), ${MzmRoute.legOf.getValue(next.id).title}", Palette.text)
+        if (next != null) LabeledLine("Next", "${next.name} (${next.sector.label}), ${MfRoute.legOf.getValue(next.id).title}", Palette.text)
         Lines(
             listOf(
-                "No sequence breaks needed. Items that need Chozodia gear wait for the cleanup trip near the end.",
-                "Follows Metroid Recon's 100% walkthrough.",
+                "The story sends you sector to sector, so most items fall on the way. The rest wait for a cleanup once the Screw Attack opens everything up.",
+                "Follows Thonky's 100% order, checked against Metroid Recon.",
             ),
         )
     }
-    MzmRoute.legs.forEachIndexed { i, leg ->
+    MfRoute.legs.forEachIndexed { i, leg ->
         Panel(stripe = Palette.accent) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${i + 1}. ${leg.title}", color = Palette.text, fontFamily = Condensed, fontSize = 18.sp, modifier = Modifier.weight(1f))
@@ -199,18 +171,19 @@ fun RouteOverviewDetail(progress: ProgressStore) {
             }
             Text(leg.note, color = Palette.muted, fontSize = 14.sp)
             EnergyCells(
-                colors = leg.itemIds.map { MzmItems.byId.getValue(it).kind.color },
+                colors = leg.itemIds.map { MfItems.byId.getValue(it).kind.color },
                 filled = leg.itemIds.map { progress.isDone(it) },
                 cellWidth = 8.dp, cellHeight = 18.dp,
             )
         }
     }
+    ClearChecklist(progress)
 }
 
 @Composable
 fun LegJumpDetail(progress: ProgressStore, onJump: (Leg) -> Unit) {
     PageTitle("Jump to trip", "Press A or Select to open the list, or tap a trip here.")
-    MzmRoute.legs.forEachIndexed { i, leg ->
+    MfRoute.legs.forEachIndexed { i, leg ->
         Panel(stripe = Palette.accent, onClick = { onJump(leg) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${i + 1}. ${leg.title}", color = Palette.text, fontFamily = Condensed, fontSize = 19.sp, modifier = Modifier.weight(1f))
@@ -218,4 +191,36 @@ fun LegJumpDetail(progress: ProgressStore, onJump: (Leg) -> Unit) {
             }
         }
     }
+}
+
+@Composable
+fun AbilityDetail(ability: Ability, step: Int) {
+    PageTitle("$step. ${ability.name}", "${ability.sector.label} · ${ability.from}")
+    Panel(stripe = Palette.accent) {
+        PanelHeading("Where")
+        Text(ability.where, color = Palette.text, fontSize = 16.sp, lineHeight = 22.sp)
+    }
+    Panel(stripe = Palette.secret) {
+        PanelHeading("What it opens up", Palette.secret)
+        Text(ability.opens, color = Palette.text, fontSize = 16.sp, lineHeight = 22.sp)
+    }
+}
+
+@Composable
+fun BossDetail(boss: Boss) {
+    PageTitle(boss.name, boss.sector.label)
+    TagRow {
+        Tag("Weak point: ${boss.weakPoint}", Palette.accent)
+        boss.reward?.let { Tag("Gives $it", Palette.secret) }
+    }
+    Panel(stripe = Palette.warning) {
+        PanelHeading("Strategy", Palette.warning)
+        Lines(boss.strategy, marker = Palette.warning)
+    }
+}
+
+@Composable
+fun MfPageDetail(page: MfPage) {
+    PageTitle(page.title, page.subtitle)
+    page.sections.forEach { SectionPanel(it) }
 }

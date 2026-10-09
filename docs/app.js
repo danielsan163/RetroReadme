@@ -380,22 +380,28 @@
       room.rects.forEach(([c0, r0, c1, r1]) => { for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) own.push([c, r]); });
       own.sort((a, b) => a[1] - b[1] || a[0] - b[0]);
       const anchor = own[0];
-      if (room.save || room.map) labels += `<text x="${X(anchor[0]) + s / 2}" y="${Y(anchor[1]) + s - 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#F2C94C">${room.save ? "S" : "M"}</text>`;
+      const letter = room.save ? "S" : room.map ? "M" : room.mark;
+      if (letter) labels += `<text x="${X(anchor[0]) + s / 2}" y="${Y(anchor[1]) + s - 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#F2C94C">${esc(letter)}</text>`;
       if (room.exit) labels += exitSvg(room.exit, own, X, Y, s);
       if (!mapFit) {
-        const spot = own.find(([c, r]) => !itemCells.has(c + "," + r) && !((room.save || room.map) && c === anchor[0] && r === anchor[1])) || anchor;
+        const spot = own.find(([c, r]) => !itemCells.has(c + "," + r) && !(letter && c === anchor[0] && r === anchor[1])) || anchor;
         const txt = room.code.split("-")[1];
         labels += `<rect x="${X(spot[0]) + 1.5}" y="${Y(spot[1]) + 1.5}" width="${txt.length * 6.4 + 4}" height="12" rx="2" fill="#0B0E14" fill-opacity=".85"/>` +
           `<text x="${X(spot[0]) + 3.5}" y="${Y(spot[1]) + 11}" font-size="10" font-weight="700" fill="${room === here ? "var(--accent)" : "#E8ECF2"}">${txt}</text>`;
       }
     }
+    // Items sharing a cell sit side by side.
+    const shared = {};
+    for (const [id, [c, r]] of Object.entries(area.items)) (shared[c + "," + r] ||= []).push(id);
     for (const [id, [c, r]] of Object.entries(area.items)) {
-      const cx = X(c) + s * .6, cy = Y(r) + s * .64, rr = s * .19;
+      const rr = s * .19, group = shared[c + "," + r];
+      const shift = group.length > 1 ? (group.indexOf(id) - (group.length - 1) / 2) * rr * 2.4 - s * .1 : 0;
+      const cx = X(c) + s * .6 + shift, cy = Y(r) + s * .64;
       const color = colors[id] || "#ccc";
       const op = prog[id] ? .3 : 1;
       const kind = id.startsWith("u_") ? "u" : id.split("_")[1][0];
       if (kind === "u") items += `<path d="M${cx} ${cy - rr * 1.25}L${cx + rr * 1.25} ${cy}L${cx} ${cy + rr * 1.25}L${cx - rr * 1.25} ${cy}Z" fill="${color}" opacity="${op}"/>`;
-      else if (kind === "e") items += `<rect x="${cx - rr}" y="${cy - rr}" width="${rr * 2}" height="${rr * 2}" rx="${rr / 3}" fill="${color}" opacity="${op}"/>`;
+      else if (kind === "e" || kind === "r") items += `<rect x="${cx - rr}" y="${cy - rr}" width="${rr * 2}" height="${rr * 2}" rx="${rr / 3}" fill="${color}" opacity="${op}"/>`;
       else items += `<circle cx="${cx}" cy="${cy}" r="${rr}" fill="${color}" opacity="${op}"/>`;
       if (id === itemId) items += `<circle cx="${cx}" cy="${cy}" r="${rr * 2}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
     }

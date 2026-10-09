@@ -18,6 +18,12 @@ import com.retroreadme.games.mmx2.ItemType
 import com.retroreadme.games.mmx2.Mmx2Colors
 import com.retroreadme.games.mmx2.WeaponData
 import com.retroreadme.games.mmx2.color
+import com.retroreadme.games.mmz.MmzData
+import com.retroreadme.games.mmz.MmzPages
+import com.retroreadme.games.mmz.Family as MmzFamily
+import com.retroreadme.games.mmz.Source as MmzSource
+import com.retroreadme.games.mmz.elfSubtitle as mmzElfSubtitle
+import com.retroreadme.games.mmz.missionNumber as mmzMissionNumber
 import com.retroreadme.games.mzm.Area
 import com.retroreadme.games.mzm.Kind
 import com.retroreadme.games.mzm.MzmItems
@@ -25,6 +31,13 @@ import com.retroreadme.games.mzm.MzmMaps
 import com.retroreadme.games.mzm.MzmPages
 import com.retroreadme.games.mzm.MzmRoute
 import com.retroreadme.games.mzm.itemSubtitle
+import com.retroreadme.games.sm.SmItems
+import com.retroreadme.games.sm.SmMaps
+import com.retroreadme.games.sm.SmPages
+import com.retroreadme.games.sm.SmRoute
+import com.retroreadme.games.sm.Area as SmArea
+import com.retroreadme.games.sm.Kind as SmKind
+import com.retroreadme.games.sm.itemSubtitle as smItemSubtitle
 import com.retroreadme.games.smw.ExitKind
 import com.retroreadme.games.smw.LevelType
 import com.retroreadme.games.smw.SmwColors
@@ -32,6 +45,14 @@ import com.retroreadme.games.smw.SmwLevels
 import com.retroreadme.games.smw.SmwPages
 import com.retroreadme.games.smw.World
 import com.retroreadme.games.smw.levelSubtitle
+import com.retroreadme.games.tmc.TmcColors
+import com.retroreadme.games.tmc.TmcData
+import com.retroreadme.games.tmc.TmcFusions
+import com.retroreadme.games.tmc.TmcPages
+import com.retroreadme.games.tmc.fusionTitle
+import com.retroreadme.games.tmc.heartTitle
+import com.retroreadme.games.tmc.tmcChecklistIds
+import com.retroreadme.games.tmc.UpgradeKind as TmcUpgradeKind
 import com.retroreadme.games.wl4.ItemKind
 import com.retroreadme.games.wl4.Mode
 import com.retroreadme.games.wl4.Passage
@@ -524,10 +545,282 @@ fun mzmTabs(): List<Tab> {
 }
 
 /** Every area's room layout, for the web map renderer. */
-fun mzmMaps(): Map<String, Any?> = Area.entries.associate { area ->
-    val m = MzmMaps.of(area)
-    area.name to mapOf(
-        "label" to area.label,
+fun mzmMaps(): Map<String, Any?> = roomMaps(Area.entries.map { MzmMaps.of(it) })
+
+// ---------------------------------------------------------------- Mega Man Zero
+
+private fun PanelB.mmzElf(elf: com.retroreadme.games.mmz.Elf, showMission: Boolean) {
+    check(elf.name, "Found", "Not found yet")
+    tags(listOfNotNull(
+        elf.family.label to hex(elf.family.color),
+        elf.source.label to hex(elf.source.color),
+        if (showMission) MmzData.missionById.getValue(elf.missionId).title to MUTED else null,
+    ))
+    lines(listOf(elf.how), marker = hex(elf.family.color))
+    elf.missable?.let { x(it, "warn") }
+}
+
+private fun mmzElfPage(elf: com.retroreadme.games.mmz.Elf): Page {
+    val mission = MmzData.missionById.getValue(elf.missionId)
+    return Page(elf.name, "${elf.family.label} elf · ${mmzMissionNumber(mission)}. ${mission.title}").apply {
+        panel(hex(elf.family.color), check = elf.id) { mmzElf(elf, showMission = false) }
+        panel(SECRET) {
+            h("What it does", SECRET)
+            x(elf.group.effect)
+            lab("Raise", if (elf.group.ec == 0) "Usable as soon as you find it" else "${elf.group.ec} E-Crystals before you can use it", MUTED)
+            if (elf.group.lasting) x("Its effect lasts for the rest of the game.", "muted")
+        }
+    }
+}
+
+fun mmzTabs(): List<Tab> {
+    val elves = MmzData.elves
+    val missions = Tab("Missions").apply {
+        row(Row(OVERVIEW, "Overview", count = elves.map { it.id } to "{d} of {n} elves"), Page("Missions", "In a good order, with the chip each boss is weak to and the elves you can find.").apply {
+            panel(WARN) {
+                h("Missions can't be replayed", WARN)
+                x("Clearing or failing a mission closes it, and elves dropped by its enemies go with it. Boxes stay put. See Hints.")
+            }
+            meters(rows = MmzData.missions.map { m ->
+                val of = MmzData.elvesIn(m)
+                Meter("${mmzMissionNumber(m)}. ${m.title}", of.map { it.id }, of.map { hex(it.family.color) })
+            })
+        })
+        MmzData.missions.forEach { m ->
+            val of = MmzData.elvesIn(m)
+            val sub = listOfNotNull(m.boss.ifEmpty { null }, m.weakness?.let { "weak to $it" }).joinToString(" · ").ifEmpty { m.area }
+            row(Row(m.id, "${mmzMissionNumber(m)}. ${m.title}", sub, cells = of.map { it.id to hex(it.family.color) }), Page("${mmzMissionNumber(m)}. ${m.title}", m.area).apply {
+                if (m.boss.isNotEmpty()) tags(*listOfNotNull("Boss: ${m.boss}" to ACCENT, m.weakness?.let { "Weak to $it" to SECRET }).toTypedArray())
+                panel(ACCENT) { x(m.unlock); lines(m.tips) }
+                if (of.isNotEmpty()) {
+                    note("Cyber-elves", ACCENT)
+                    of.forEach { elf -> panel(hex(elf.family.color), check = elf.id) { mmzElf(elf, showMission = false) } }
+                }
+            })
+        }
+    }
+    val cyber = Tab("Cyber-elves").apply {
+        row(Row(OVERVIEW, "Progress", count = elves.map { it.id } to "{d} of {n} elves"), Page("Cyber-elves", "All 78, by mission. Tap an elf to check it off.").apply {
+            meters(
+                tags = MmzFamily.entries.map { f -> Meter(f.label, elves.filter { it.family == f }.map { it.id }, listOf(hex(f.color))) },
+                rows = emptyList(),
+            )
+            panel(ACCENT) { MmzFamily.entries.forEach { f -> lab(f.label, f.about, hex(f.color)) } }
+            panel(WARN) { count(elves.filter { it.source == MmzSource.ENEMIES || it.source == MmzSource.MISSION }.map { it.id }, "{r} left that you can only get during their mission", style = null) }
+            reset()
+        })
+        elves.forEachIndexed { i, elf ->
+            val mission = MmzData.missionById.getValue(elf.missionId)
+            val group = if (i == 0 || elves[i - 1].missionId != elf.missionId) "${mmzMissionNumber(mission)}. ${mission.title}" else null
+            row(Row(elf.id, elf.name, mmzElfSubtitle(elf), group, cells = listOf(elf.id to hex(elf.family.color))), mmzElfPage(elf))
+        }
+    }
+    val bosses = Tab("Bosses").apply {
+        MmzPages.bosses.forEach { b ->
+            val m = MmzData.missionById.getValue(b.missionId)
+            row(Row(b.id, b.name, listOfNotNull(m.title, b.weakness?.let { "weak to $it" }).joinToString(" · ")), Page(b.name, "${mmzMissionNumber(m)}. ${m.title} · ${m.area}").apply {
+                tags(*listOfNotNull("Weak to ${b.weakness ?: "nothing"}" to SECRET, b.reward?.let { "Gives $it" to ACCENT }).toTypedArray())
+                panel(ACCENT) { h("Strategy"); lines(b.strategy) }
+            })
+        }
+    }
+    val weapons = pagesTab("Weapons", MmzPages.weapons.map { Triple(it.id, it.title, it.subtitle) }) { id -> MmzPages.weapons.first { it.id == id }.sections }
+    val hints = pagesTab("Hints", MmzPages.hints.map { Triple(it.id, it.title, it.subtitle) }) { id -> MmzPages.hints.first { it.id == id }.sections }
+    return listOf(missions, cyber, bosses, weapons, hints)
+}
+
+// ---------------------------------------------------------------- The Minish Cap
+
+private fun tmcProgressPage(title: String, subtitle: String, groups: List<Pair<String, List<Pair<String, String>>>>) = Page(title, subtitle).apply {
+    panel(ACCENT) {
+        count(tmcChecklistIds, "{d} of {n} (Heart Pieces, fusions and upgrades)", style = null)
+    }
+    meters(
+        tags = listOf(
+            Meter("Hearts", TmcData.hearts.map { it.id }, listOf(hex(TmcColors.Heart))),
+            Meter("Fusions", TmcFusions.all.map { it.id }, listOf(hex(TmcColors.EzloGold))),
+            Meter("Upgrades", TmcData.upgrades.map { it.id }, listOf(hex(TmcColors.Upgrade))),
+        ),
+        rows = groups.map { (label, cells) -> Meter(label, cells.map { it.first }, cells.map { it.second }) },
+    )
+    reset()
+}
+
+fun tmcTabs(): List<Tab> {
+    val walkthrough = Tab("Walkthrough").apply {
+        val steps = TmcData.steps
+        row(Row(OVERVIEW, "Where now", count = steps.map { it.id } to "{d} of {n} steps"), Page("Walkthrough", "Where to go next, in a line or two. Dungeons get one line: what's inside.").apply {
+            panel(ACCENT) {
+                count(steps.map { it.id }, "{d} of {n} steps done", style = null)
+                next("Next", steps.map { it.id to "${it.chapter}: ${it.text}" })
+                x("Steps are just for keeping your place; they don't count toward 100%.", "muted")
+            }
+            panel(WARN) { h("One thing you can lose for good", WARN); x("The Light Arrows. See Hints before you head up Veil Falls.") }
+        })
+        steps.forEachIndexed { i, step ->
+            val group = if (i == 0 || steps[i - 1].chapter != step.chapter) "${TmcData.chapters.indexOf(step.chapter) + 1}. ${step.chapter}" else null
+            row(Row(step.id, step.text, null, group, cells = listOf(step.id to hex(TmcColors.Step))), Page(step.chapter, "Chapter ${TmcData.chapters.indexOf(step.chapter) + 1} of ${TmcData.chapters.size} · tap a step to check it off").apply {
+                steps.filter { it.chapter == step.chapter }.forEach { s ->
+                    panel(if (s.id == step.id) ACCENT else LINE, check = s.id) {
+                        check(if (s.id == step.id) "This step" else "Step ${s.id.drop(1).trimStart('0')}", "Done", "Not yet")
+                        x(s.text)
+                    }
+                }
+            })
+        }
+    }
+    val hearts = Tab("Heart Pieces").apply {
+        val all = TmcData.hearts
+        row(Row(OVERVIEW, "Progress", count = all.map { it.id } to "{d} of {n} Heart Pieces"),
+            tmcProgressPage("Heart Pieces", "All 44, by area. Tap one to check it off.", TmcData.heartAreas.map { a -> a to all.filter { it.area == a }.map { it.id to hex(TmcColors.Heart) } }))
+        all.forEachIndexed { i, h ->
+            val group = if (i == 0 || all[i - 1].area != h.area) h.area else null
+            row(Row(h.id, heartTitle(h), h.needs.ifEmpty { listOf("Nothing special") }.joinToString(", "), group, cells = listOf(h.id to hex(TmcColors.Heart))), Page(heartTitle(h), h.area).apply {
+                panel(hex(TmcColors.Heart), check = h.id) {
+                    check(heartTitle(h), "Collected", "Not yet")
+                    if (h.needs.isNotEmpty()) tags(h.needs.map { it to ACCENT })
+                    lines(listOf(h.how), marker = hex(TmcColors.Heart))
+                }
+            })
+        }
+    }
+    val kinstones = Tab("Kinstones").apply {
+        val all = TmcFusions.all
+        row(Row(OVERVIEW, "Progress", count = all.map { it.id } to "{d} of {n} fusions"),
+            tmcProgressPage("Kinstone fusions", "All 100, by the story stage they open at. Tap one to check it off.", TmcFusions.stages.mapIndexed { i, label -> label to all.filter { it.stage == i + 1 }.map { it.id to hex(it.color.color) } }))
+        all.forEachIndexed { i, f ->
+            val group = if (i == 0 || all[i - 1].stage != f.stage) TmcFusions.stages[f.stage - 1] else null
+            row(Row(f.id, fusionTitle(f), if (f.random) f.result else "${f.location} · ${f.color.label}", group, cells = listOf(f.id to hex(f.color.color))), Page(fusionTitle(f), "${f.color.label} Kinstone · Stage ${f.stage}").apply {
+                panel(hex(f.color.color), check = f.id) {
+                    check(fusionTitle(f), "Fused", "Not yet")
+                    tags(f.color.label to hex(f.color.color), "Stage ${f.stage}" to MUTED)
+                    lab("With", if (f.random) "Anyone on the random list (see Hints)" else "${f.fuser}, ${f.location}", "@text")
+                    lab("Result", f.result, SECRET)
+                }
+            })
+        }
+    }
+    val upgrades = Tab("Upgrades").apply {
+        val all = TmcData.upgrades
+        row(Row(OVERVIEW, "Progress", count = all.map { it.id } to "{d} of {n} upgrades"),
+            tmcProgressPage("Bottles and upgrades", "Four bottles, three of each capacity upgrade, and four item upgrades.", TmcUpgradeKind.entries.map { k -> k.label to all.filter { it.kind == k }.map { it.id to hex(TmcColors.Upgrade) } }))
+        all.forEachIndexed { i, u ->
+            val group = if (i == 0 || all[i - 1].kind != u.kind) u.kind.label else null
+            row(Row(u.id, u.name, u.area, group, cells = listOf(u.id to hex(TmcColors.Upgrade))), Page(u.name, "${u.kind.label} · ${u.area}").apply {
+                panel(hex(TmcColors.Upgrade), check = u.id) {
+                    check(u.name, "Got it", "Not yet")
+                    lines(listOf(u.how), marker = hex(TmcColors.Upgrade))
+                    u.missable?.let { x(it, "warn") }
+                    if (u.confirm) x("Only one of the two guides covers this one. Worth confirming in-game.", "warn")
+                }
+            })
+        }
+    }
+    val bosses = Tab("Bosses").apply {
+        TmcPages.bosses.forEach { b ->
+            row(Row(b.id, b.name, b.dungeon), Page(b.name, b.dungeon).apply {
+                tags("Guards: ${b.reward}" to SECRET)
+                panel(ACCENT) { h("Strategy"); lines(b.strategy) }
+            })
+        }
+    }
+    val hints = pagesTab("Hints", TmcPages.hints.map { Triple(it.id, it.title, it.subtitle) }) { id -> TmcPages.hints.first { it.id == id }.sections }
+    return listOf(walkthrough, hearts, kinstones, upgrades, bosses, hints)
+}
+
+// ---------------------------------------------------------------- Super Metroid
+
+private fun Page.smItem(item: com.retroreadme.games.sm.Item) {
+    val c = hex(item.kind.color)
+    panel(c, check = item.id) {
+        check(item.name, "Collected", "Not collected yet")
+        tags(item.needs.map { it to ACCENT })
+        lines(item.steps, numbered = item.steps.size > 1, marker = c)
+        if (item.needsShinespark) video("These steps work, but Shinesparks are hard to follow from text mid-game. A video is easier:", item.videoSearch)
+        if (item.confirm) x("The two guides disagree here. Worth confirming in-game.", "warn")
+    }
+    map(item.area.name, item.id)
+}
+
+private fun smItemPage(item: com.retroreadme.games.sm.Item) =
+    Page(item.name, listOfNotNull(item.area.label, SmMaps.roomOf(item)?.code, item.kind.label).joinToString(" · ")).apply { smItem(item) }
+
+fun smTabs(): List<Tab> {
+    val items = SmItems.all
+    val route = Tab("Route").apply {
+        val ordered = SmRoute.items
+        row(Row(OVERVIEW, "Progress", count = ordered.map { it.id } to "{d} of {n} items"), Page("100% route", "Every item in the order you'd pick it up. Tap an item to check it off.").apply {
+            panel(ACCENT) {
+                count(ordered.map { it.id }, "{d} of {n} items", style = null)
+                next("Next", ordered.map { it.id to "${it.name} (${it.area.label}), ${SmRoute.legOf.getValue(it.id).title}" })
+                lines(listOf(
+                    "No sequence breaks needed. Each item comes after the gear it needs, and Mother Brain comes last.",
+                    "Follows Budwin's 100% walkthrough, checked against Metroid Recon.",
+                ))
+            }
+            SmRoute.legs.forEachIndexed { i, leg ->
+                panel(ACCENT) {
+                    h("${i + 1}. ${leg.title}")
+                    count(leg.itemIds, "{d} of {n}")
+                    x(leg.note, "muted")
+                    meter(leg.itemIds, leg.itemIds.map { hex(SmItems.byId.getValue(it).kind.color) })
+                }
+            }
+        })
+        ordered.forEach { item ->
+            val leg = SmRoute.legOf.getValue(item.id)
+            val group = if (leg.itemIds.first() == item.id) "${SmRoute.legs.indexOf(leg) + 1}. ${leg.title}" else null
+            row(Row(item.id, item.name, "${item.area.label} · ${smItemSubtitle(item)}", group, cells = listOf(item.id to hex(item.kind.color))), smItemPage(item))
+        }
+    }
+    val areas = Tab("Areas").apply {
+        row(Row(OVERVIEW, "Progress", count = items.map { it.id } to "{d} of {n} items"), Page("Items", "Tap an item to check it off.").apply {
+            meters(
+                tags = SmKind.entries.map { k -> Meter(k.short, items.filter { it.kind == k }.map { it.id }, listOf(hex(k.color))) },
+                rows = SmArea.entries.map { a ->
+                    val of = items.filter { it.area == a }
+                    Meter(a.label, of.map { it.id }, of.map { hex(it.kind.color) })
+                },
+            )
+            reset()
+        })
+        items.forEachIndexed { i, item ->
+            val group = if (i == 0 || items[i - 1].area != item.area) item.area.label else null
+            row(Row(item.id, item.name, smItemSubtitle(item), group, cells = listOf(item.id to hex(item.kind.color))), smItemPage(item))
+        }
+    }
+    val upgrades = Tab("Upgrades").apply {
+        SmPages.upgradeOrder.forEachIndexed { i, id ->
+            val u = SmItems.byId.getValue(id)
+            row(Row(id, "${i + 1}. ${u.name}", u.area.label, cells = listOf(id to hex(u.kind.color))), smItemPage(u).apply {
+                SmPages.unlocks[id]?.let { text -> panel(SECRET) { h("What it opens up", SECRET); x(text) } }
+            })
+        }
+    }
+    val bosses = Tab("Bosses").apply {
+        SmPages.bosses.forEach { b ->
+            row(Row(b.id, b.name, b.place), Page(b.name, b.place).apply {
+                tags("Weak point: ${b.weakPoint}" to ACCENT)
+                panel(WARN) {
+                    h("Strategy", WARN)
+                    lines(b.strategy, numbered = true, marker = WARN)
+                }
+                panel { h("Where and why"); lines(b.lines) }
+            })
+        }
+    }
+    val techniques = pagesTab("Techniques", SmPages.techniques.map { Triple(it.id, it.title, it.subtitle) }) { id -> SmPages.techniques.first { it.id == id }.sections }
+    val hints = pagesTab("Hints", SmPages.hints.map { Triple(it.id, it.title, it.subtitle) }) { id -> SmPages.hints.first { it.id == id }.sections }
+    return listOf(route, areas, upgrades, bosses, techniques, hints)
+}
+
+/** Every area's room layout, for the web map renderer. */
+fun smMaps(): Map<String, Any?> = roomMaps(SmArea.entries.map { SmMaps.of(it) })
+
+/** Room layouts in the web app's format, keyed by area. */
+fun roomMaps(maps: List<com.retroreadme.ui.RoomMap>): Map<String, Any?> = maps.associate { m ->
+    m.key to mapOf(
+        "label" to m.label,
         "rooms" to m.rooms.map { r ->
             mapOf(
                 "code" to r.code,
@@ -535,10 +828,96 @@ fun mzmMaps(): Map<String, Any?> = Area.entries.associate { area ->
                 "rects" to r.rects.map { listOf(it.c0, it.r0, it.c1, it.r1) },
                 "save" to r.save.takeIf { it },
                 "map" to r.map.takeIf { it },
+                "mark" to r.mark,
                 "exit" to r.exit?.let { listOf(it.to, it.dir.name) },
             )
         },
         "doors" to m.doors.map { listOf(it.row, it.col, it.kind.name) },
-        "items" to m.items.mapValues { (_, c) -> listOf(com.retroreadme.games.mzm.colOf(c), com.retroreadme.games.mzm.rowOf(c)) },
+        "items" to m.items.mapValues { (_, c) -> listOf(com.retroreadme.ui.colOf(c), com.retroreadme.ui.rowOf(c)) },
     )
 }
+
+// ---------------------------------------------------------------- Metroid Fusion
+
+private fun mfItemPage(item: com.retroreadme.games.mf.Item) = Page(
+    item.name,
+    listOfNotNull(item.sector.label, com.retroreadme.games.mf.MfMaps.roomOf(item)?.code, item.kind.label).joinToString(" · "),
+).apply {
+    val c = hex(item.kind.color)
+    panel(c, check = item.id) {
+        check(item.name, "Collected", "Not collected yet")
+        tags(item.needs.map { it to ACCENT })
+        lines(item.steps, numbered = item.steps.size > 1, marker = c)
+        if (item.needsShinespark) video("These steps work, but Shinesparks are hard to follow from text mid-game. A video is easier:", item.videoSearch)
+        if (item.confirm) x("Only one of the two guides backs this up. Worth confirming in-game.", "warn")
+    }
+    map(item.sector.name, item.id)
+}
+
+fun mfTabs(): List<Tab> {
+    val items = com.retroreadme.games.mf.MfItems.all
+    val route = com.retroreadme.games.mf.MfRoute
+    val routeTab = Tab("Route").apply {
+        row(Row(OVERVIEW, "Progress", count = route.items.map { it.id } to "{d} of {n} items"), Page("100% route", "Every item in the order you'd pick it up. Tap an item to check it off.").apply {
+            panel(ACCENT) {
+                count(route.items.map { it.id }, "{d} of {n} items", style = null)
+                next("Next", route.items.map { it.id to "${it.name} (${it.sector.label}), ${route.legOf.getValue(it.id).title}" })
+                lines(listOf(
+                    "The story sends you sector to sector, so most items fall on the way. The rest wait for a cleanup once the Screw Attack opens everything up.",
+                    "Follows Thonky's 100% order, checked against Metroid Recon.",
+                ))
+            }
+            route.legs.forEachIndexed { i, leg ->
+                panel(ACCENT) {
+                    h("${i + 1}. ${leg.title}")
+                    count(leg.itemIds, "{d} of {n}")
+                    x(leg.note, "muted")
+                    meter(leg.itemIds, leg.itemIds.map { hex(com.retroreadme.games.mf.MfItems.byId.getValue(it).kind.color) })
+                }
+            }
+            reset()
+        })
+        route.items.forEach { item ->
+            val leg = route.legOf.getValue(item.id)
+            val group = if (leg.itemIds.first() == item.id) "${route.legs.indexOf(leg) + 1}. ${leg.title}" else null
+            row(Row(item.id, item.name, "${item.sector.short} · ${com.retroreadme.games.mf.itemSubtitle(item)}", group, cells = listOf(item.id to hex(item.kind.color))), mfItemPage(item))
+        }
+    }
+    val sectors = Tab("Sectors").apply {
+        row(Row(OVERVIEW, "Progress", count = items.map { it.id } to "{d} of {n} items"), Page("Items", "Tap an item to check it off.").apply {
+            meters(
+                tags = com.retroreadme.games.mf.Kind.entries.map { k -> Meter(k.short, items.filter { it.kind == k }.map { it.id }, listOf(hex(k.color))) },
+                rows = com.retroreadme.games.mf.Sector.entries.map { s ->
+                    val of = items.filter { it.sector == s }
+                    Meter(s.label, of.map { it.id }, of.map { hex(it.kind.color) })
+                },
+            )
+            reset()
+        })
+        items.forEachIndexed { i, item ->
+            val group = if (i == 0 || items[i - 1].sector != item.sector) item.sector.label else null
+            row(Row(item.id, item.name, com.retroreadme.games.mf.itemSubtitle(item), group, cells = listOf(item.id to hex(item.kind.color))), mfItemPage(item))
+        }
+    }
+    val abilities = Tab("Abilities").apply {
+        com.retroreadme.games.mf.MfPages.abilities.forEachIndexed { i, a ->
+            row(Row(a.id, "${i + 1}. ${a.name}", "${a.sector.short} · ${a.from}"), Page("${i + 1}. ${a.name}", "${a.sector.label} · ${a.from}").apply {
+                panel(ACCENT) { h("Where"); x(a.where) }
+                panel(SECRET) { h("What it opens up", SECRET); x(a.opens) }
+            })
+        }
+    }
+    val bosses = Tab("Bosses").apply {
+        com.retroreadme.games.mf.MfPages.bosses.forEach { b ->
+            row(Row(b.id, b.name, b.sector.label), Page(b.name, b.sector.label).apply {
+                tags(*listOfNotNull("Weak point: ${b.weakPoint}" to ACCENT, b.reward?.let { "Gives $it" to SECRET }).toTypedArray())
+                panel(WARN) { h("Strategy", WARN); lines(b.strategy, marker = WARN) }
+            })
+        }
+    }
+    val pages = com.retroreadme.games.mf.MfPages.hints
+    val hints = pagesTab("Hints", pages.map { Triple(it.id, it.title, it.subtitle) }) { id -> pages.first { it.id == id }.sections }
+    return listOf(routeTab, sectors, abilities, bosses, hints)
+}
+
+fun mfMaps(): Map<String, Any?> = roomMaps(com.retroreadme.games.mf.Sector.entries.map { com.retroreadme.games.mf.MfMaps.of(it) })

@@ -1,4 +1,4 @@
-package com.retroreadme.games.mzm
+package com.retroreadme.games.sm
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,23 +28,23 @@ import com.retroreadme.ui.SectionPanel
 import com.retroreadme.ui.Tag
 import com.retroreadme.ui.TagRow
 
-const val MZM_OVERVIEW_KEY = "overview"
-const val MZM_JUMP_KEY = "jump"
+const val SM_OVERVIEW_KEY = "overview"
+const val SM_JUMP_KEY = "jump"
 
 fun itemSubtitle(item: Item): String {
     val needs = if (item.needs.isEmpty()) "Nothing special" else item.needs.joinToString(", ")
-    val room = MzmMaps.roomOf(item)?.code
-    return listOfNotNull(room, "After Chozodia".takeIf { item.late }, needs).joinToString(" · ")
+    val room = SmMaps.roomOf(item)?.code
+    return listOfNotNull(room, needs).joinToString(" · ")
 }
 
 fun areaProgress(area: Area, progress: ProgressStore): String {
-    val ids = MzmItems.all.filter { it.area == area }.map { it.id }
+    val ids = SmItems.all.filter { it.area == area }.map { it.id }
     return "${progress.countDone(ids)} of ${ids.size}"
 }
 
 @Composable
 fun ItemDetail(item: Item, progress: ProgressStore) {
-    val room = MzmMaps.roomOf(item)
+    val room = SmMaps.roomOf(item)
     PageTitle(item.name, listOfNotNull(item.area.label, room?.code, item.kind.label).joinToString(" · "))
     val done = progress.isDone(item.id)
     Panel(stripe = item.kind.color, onClick = { progress.toggle(item.id) }) {
@@ -58,17 +58,18 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
             }
             CheckBoxMark(done)
         }
-        if (item.needs.isNotEmpty() || item.late) {
-            TagRow {
-                if (item.late) Tag("After Chozodia", Palette.warning)
-                item.needs.forEach { Tag(it, Palette.accent) }
-            }
-        }
+        if (item.needs.isNotEmpty()) TagRow { item.needs.forEach { Tag(it, Palette.accent) } }
         Lines(item.steps, numbered = item.steps.size > 1, marker = item.kind.color)
         if (item.needsShinespark) {
             Text(
                 "These steps work, but Shinesparks are hard to follow from text mid-game. A video is easier: search YouTube for \"${item.videoSearch}\".",
                 color = Palette.secret, fontSize = 14.sp, lineHeight = 20.sp,
+            )
+        }
+        if (item.confirm) {
+            Text(
+                "The two guides disagree here. Worth confirming on the Nova.",
+                color = Palette.warning, fontSize = 14.sp,
             )
         }
     }
@@ -80,7 +81,7 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
                 Text("${item.area.label} map · ${room.code}", color = Palette.accent, fontFamily = Condensed, fontSize = 17.sp, modifier = Modifier.weight(1f))
                 Text(if (zoomed) "A: whole area" else "A: close-up", color = Palette.muted, fontSize = 13.sp)
             }
-            MzmMapView(item, progress, zoomed)
+            SmMapView(item, progress, zoomed)
         }
     }
 }
@@ -88,7 +89,7 @@ fun ItemDetail(item: Item, progress: ProgressStore) {
 @Composable
 fun UpgradeDetail(item: Item, progress: ProgressStore) {
     ItemDetail(item, progress)
-    MzmPages.unlocks[item.id]?.let { text ->
+    SmPages.unlocks[item.id]?.let { text ->
         Panel(stripe = Palette.secret) {
             PanelHeading("What it opens up", Palette.secret)
             Text(text, color = Palette.text, fontSize = 16.sp, lineHeight = 22.sp)
@@ -97,8 +98,8 @@ fun UpgradeDetail(item: Item, progress: ProgressStore) {
 }
 
 @Composable
-fun MzmOverviewDetail(progress: ProgressStore) {
-    val all = MzmItems.all
+fun SmOverviewDetail(progress: ProgressStore) {
+    val all = SmItems.all
     PageTitle("Items", "Press A on an item to check it off.")
     Panel(stripe = Palette.accent) {
         TagRow {
@@ -107,8 +108,6 @@ fun MzmOverviewDetail(progress: ProgressStore) {
                 Tag("${kind.short} ${progress.countDone(ids)} of ${ids.size}", kind.color)
             }
         }
-        val late = all.filter { it.late }.map { it.id }
-        LabeledLine("Later", "${late.size - progress.countDone(late)} left that need Chozodia gear", Palette.warning)
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Area.entries.forEach { area ->
                 val items = all.filter { it.area == area }
@@ -155,7 +154,7 @@ fun AreaJumpDetail(progress: ProgressStore, onJump: (Area) -> Unit) {
 
 @Composable
 fun BossDetail(boss: Boss) {
-    PageTitle(boss.name, boss.area.label)
+    PageTitle(boss.name, boss.place)
     TagRow { Tag("Weak point: ${boss.weakPoint}", Palette.accent) }
     Panel(stripe = Palette.warning) {
         PanelHeading("Strategy", Palette.warning)
@@ -168,7 +167,7 @@ fun BossDetail(boss: Boss) {
 }
 
 @Composable
-fun MzmPageDetail(page: MzmPage) {
+fun SmPageDetail(page: SmPage) {
     PageTitle(page.title, page.subtitle)
     page.sections.forEach { SectionPanel(it) }
 }
@@ -178,20 +177,20 @@ fun legProgress(leg: Leg, progress: ProgressStore): String =
 
 @Composable
 fun RouteOverviewDetail(progress: ProgressStore) {
-    val all = MzmRoute.items
+    val all = SmRoute.items
     PageTitle("100% route", "Every item in the order you'd pick it up. Press A on an item to check it off.")
     Panel(stripe = Palette.accent) {
         LabeledLine("Progress", "${progress.countDone(all.map { it.id })} of ${all.size} items", Palette.accent)
         val next = all.firstOrNull { !progress.isDone(it.id) }
-        if (next != null) LabeledLine("Next", "${next.name} (${next.area.label}), ${MzmRoute.legOf.getValue(next.id).title}", Palette.text)
+        if (next != null) LabeledLine("Next", "${next.name} (${next.area.label}), ${SmRoute.legOf.getValue(next.id).title}", Palette.text)
         Lines(
             listOf(
-                "No sequence breaks needed. Items that need Chozodia gear wait for the cleanup trip near the end.",
-                "Follows Metroid Recon's 100% walkthrough.",
+                "No sequence breaks needed. Each item comes after the gear it needs, and Mother Brain comes last.",
+                "Follows Budwin's 100% walkthrough, checked against Metroid Recon.",
             ),
         )
     }
-    MzmRoute.legs.forEachIndexed { i, leg ->
+    SmRoute.legs.forEachIndexed { i, leg ->
         Panel(stripe = Palette.accent) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${i + 1}. ${leg.title}", color = Palette.text, fontFamily = Condensed, fontSize = 18.sp, modifier = Modifier.weight(1f))
@@ -199,7 +198,7 @@ fun RouteOverviewDetail(progress: ProgressStore) {
             }
             Text(leg.note, color = Palette.muted, fontSize = 14.sp)
             EnergyCells(
-                colors = leg.itemIds.map { MzmItems.byId.getValue(it).kind.color },
+                colors = leg.itemIds.map { SmItems.byId.getValue(it).kind.color },
                 filled = leg.itemIds.map { progress.isDone(it) },
                 cellWidth = 8.dp, cellHeight = 18.dp,
             )
@@ -210,7 +209,7 @@ fun RouteOverviewDetail(progress: ProgressStore) {
 @Composable
 fun LegJumpDetail(progress: ProgressStore, onJump: (Leg) -> Unit) {
     PageTitle("Jump to trip", "Press A or Select to open the list, or tap a trip here.")
-    MzmRoute.legs.forEachIndexed { i, leg ->
+    SmRoute.legs.forEachIndexed { i, leg ->
         Panel(stripe = Palette.accent, onClick = { onJump(leg) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${i + 1}. ${leg.title}", color = Palette.text, fontFamily = Condensed, fontSize = 19.sp, modifier = Modifier.weight(1f))
