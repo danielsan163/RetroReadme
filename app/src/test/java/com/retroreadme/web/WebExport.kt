@@ -30,6 +30,7 @@ class WebExport {
         "sm" to ::smTabs,
         "mmz" to ::mmzTabs,
         "tmc" to ::tmcTabs,
+        "dread" to ::dreadTabs,
     )
 
     @Test
@@ -47,6 +48,7 @@ class WebExport {
                     "mzm" -> mzmMaps()
                     "mf" -> mfMaps()
                     "sm" -> smMaps()
+                    "dread" -> dreadMaps()
                     else -> null
                 },
             )

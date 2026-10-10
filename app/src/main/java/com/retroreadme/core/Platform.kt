@@ -14,4 +14,5 @@ enum class Platform(val label: String) {
     N64("N64"),
     GENESIS("Genesis"),
     PS1("PlayStation"),
+    SWITCH("Switch"),
 }

@@ -401,7 +401,7 @@
       const op = prog[id] ? .3 : 1;
       const kind = id.startsWith("u_") ? "u" : id.split("_")[1][0];
       if (kind === "u") items += `<path d="M${cx} ${cy - rr * 1.25}L${cx + rr * 1.25} ${cy}L${cx} ${cy + rr * 1.25}L${cx - rr * 1.25} ${cy}Z" fill="${color}" opacity="${op}"/>`;
-      else if (kind === "e" || kind === "r") items += `<rect x="${cx - rr}" y="${cy - rr}" width="${rr * 2}" height="${rr * 2}" rx="${rr / 3}" fill="${color}" opacity="${op}"/>`;
+      else if (kind === "e" || kind === "r" || kind === "q") items += `<rect x="${cx - rr}" y="${cy - rr}" width="${rr * 2}" height="${rr * 2}" rx="${rr / 3}" fill="${color}" opacity="${op}"/>`;
       else items += `<circle cx="${cx}" cy="${cy}" r="${rr}" fill="${color}" opacity="${op}"/>`;
       if (id === itemId) items += `<circle cx="${cx}" cy="${cy}" r="${rr * 2}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
     }

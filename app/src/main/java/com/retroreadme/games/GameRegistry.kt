@@ -2,6 +2,7 @@ package com.retroreadme.games
 
 import com.retroreadme.core.Game
 import com.retroreadme.games.aos.AosGame
+import com.retroreadme.games.dread.DreadGame
 import com.retroreadme.games.kdl3.Kdl3Game
 import com.retroreadme.games.mf.MfGame
 import com.retroreadme.games.mmx2.Mmx2Game
@@ -28,6 +29,7 @@ object GameRegistry {
         SmGame.game,
         MmzGame.game,
         TmcGame.game,
+        DreadGame.game,
         AosGame.game,
     ).sortedWith(
         // Grouped by platform, then alphabetical by title. Guides in a group sort by the

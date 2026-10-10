@@ -3,7 +3,7 @@
 Offline walkthroughs for retro games, laid out for the Retroid Pocket Nova's 1280x960 (4:3) landscape
 screen and driven entirely by its controls. Runs on Android 8.0 (API 26) and up.
 
-Games: Mega Man X2 (SNES), Super Mario World (SNES), Kirby's Dream Land 3 (SNES), Super Metroid (SNES), Wario Land 4 (GBA, Normal and Hard), Metroid: Zero Mission (GBA), Metroid Fusion (GBA), Mega Man Zero (GBA), The Legend of Zelda: The Minish Cap (GBA), Castlevania: Aria of Sorrow (GBA).
+Games: Mega Man X2 (SNES), Super Mario World (SNES), Kirby's Dream Land 3 (SNES), Super Metroid (SNES), Wario Land 4 (GBA, Normal and Hard), Metroid: Zero Mission (GBA), Metroid Fusion (GBA), Mega Man Zero (GBA), The Legend of Zelda: The Minish Cap (GBA), Castlevania: Aria of Sorrow (GBA), Metroid Dread (Switch).
 
 ## Web version
 

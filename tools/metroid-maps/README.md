@@ -6,6 +6,7 @@ files, one folder per game:
 - `games/mzm/`: Metroid: Zero Mission (writes `MzmMapData.kt`)
 - `games/mf/`: Metroid Fusion (writes `MfMapData.kt`)
 - `games/sm/`: Super Metroid (writes `SmMapData.kt`)
+- `games/dread/`: Metroid Dread (writes `DreadMapData.kt`; see below, it's built differently)
 
 Each game folder has `config.py` (Kotlin package, output file, areas, entry rooms, reference
 grid), `areas/` (one file per area) and `ref/` (the reference map, not in git).
@@ -66,3 +67,20 @@ elevator rails come out as tall one-column rooms: delete them from the area file
 Least certain transcriptions: Zero Mission's Chozodia (ship middle and Chozo Ruins maze), and
 which tank is which in a few Fusion rooms where several fit the description (Sector 4's middle
 rooms and Sector 5's west side).
+
+## Metroid Dread
+
+Dread's in-game map has no room outlines, so its area files are made by two scripts in
+`games/dread/` instead of being hand-transcribed:
+
+1. `fetch_ref.py` downloads MapGenie's Dread map data (item positions, area outlines) and stitches
+   each area's map tiles into `ref/<area>.png` (zoom 13), with `ref/<area>.json` giving every item's
+   pixel position and `ref/<area>.region.json` the area's outline. Reference only, not in git.
+2. `extract_dread.py` cuts each area's open space at its door icons (light-grey framed boxes),
+   splits it into rooms, lays a 48 px grid over it, and writes `areas/<area>.py` plus
+   `ref/<area>.sheet.json` (each item's id, kind, cell and room). Item ids are numbered top to
+   bottom on the map, so rerunning it keeps them stable.
+
+`overlay.py <area>` draws an area file over its reference to check it, and `label.py <area>` labels
+every item and station for writing the item text. Then `gen.py dread` as usual. Rerunning
+`extract_dread.py` overwrites the area files, so make any hand fixes after the last run.

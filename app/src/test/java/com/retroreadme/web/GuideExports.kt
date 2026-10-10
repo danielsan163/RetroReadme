@@ -5,6 +5,13 @@ import com.retroreadme.games.aos.AosSouls
 import com.retroreadme.games.aos.SoulType
 import com.retroreadme.games.aos.areaBosses
 import com.retroreadme.games.aos.soulsIn
+import com.retroreadme.games.dread.DreadItems
+import com.retroreadme.games.dread.DreadMaps
+import com.retroreadme.games.dread.DreadPages
+import com.retroreadme.games.dread.DreadRoute
+import com.retroreadme.games.dread.Area as DreadArea
+import com.retroreadme.games.dread.Kind as DreadKind
+import com.retroreadme.games.dread.itemSubtitle as dreadItemSubtitle
 import com.retroreadme.games.kdl3.Ability
 import com.retroreadme.games.kdl3.Friend
 import com.retroreadme.games.kdl3.Kdl3Colors
@@ -816,6 +823,94 @@ fun smTabs(): List<Tab> {
 
 /** Every area's room layout, for the web map renderer. */
 fun smMaps(): Map<String, Any?> = roomMaps(SmArea.entries.map { SmMaps.of(it) })
+
+// ---------------------------------------------------------------- Metroid Dread
+
+private fun Page.dreadItem(item: com.retroreadme.games.dread.Item) {
+    val c = hex(item.kind.color)
+    panel(c, check = item.id) {
+        check(item.name, "Collected", "Not collected yet")
+        tags(item.needs.map { it to ACCENT })
+        lines(item.steps, numbered = item.steps.size > 1, marker = c)
+        if (item.needsShinespark) video("These steps work, but Shinesparks are hard to follow from text mid-game. A video is easier:", item.videoSearch)
+        if (item.confirm) x("Placing this one from the guides' descriptions was a judgement call; the map position is exact. Worth confirming in-game.", "warn")
+    }
+    map(item.area.name, item.id)
+}
+
+private fun dreadItemPage(item: com.retroreadme.games.dread.Item) =
+    Page(item.name, listOfNotNull(item.area.label, DreadMaps.roomOf(item)?.code, item.kind.label).joinToString(" · ")).apply { dreadItem(item) }
+
+fun dreadTabs(): List<Tab> {
+    val items = DreadItems.all
+    val route = Tab("Route").apply {
+        val ordered = DreadRoute.items
+        row(Row(OVERVIEW, "Progress", count = ordered.map { it.id } to "{d} of {n} items"), Page("100% route", "Every item in the order you'd pick it up. Tap an item to check it off.").apply {
+            panel(ACCENT) {
+                count(ordered.map { it.id }, "{d} of {n} items", style = null)
+                next("Next", ordered.map { it.id to "${it.name} (${it.area.label}), ${DreadRoute.legOf.getValue(it.id).title}" })
+                lines(listOf(
+                    "The story trips pick up the upgrades and what's on the way; once the Power Bomb opens everything, a cleanup trip per area gets the rest. Finish before the capsule to Itorash.",
+                    "Positions from MapGenie's map; directions from Gameranx's guides and walkthrough.",
+                ))
+            }
+            DreadRoute.legs.forEachIndexed { i, leg ->
+                panel(ACCENT) {
+                    h("${i + 1}. ${leg.title}")
+                    count(leg.itemIds, "{d} of {n}")
+                    x(leg.note, "muted")
+                    meter(leg.itemIds, leg.itemIds.map { hex(DreadItems.byId.getValue(it).kind.color) })
+                }
+            }
+        })
+        ordered.forEach { item ->
+            val leg = DreadRoute.legOf.getValue(item.id)
+            val group = if (leg.itemIds.first() == item.id) "${DreadRoute.legs.indexOf(leg) + 1}. ${leg.title}" else null
+            row(Row(item.id, item.name, "${item.area.label} · ${dreadItemSubtitle(item)}", group, cells = listOf(item.id to hex(item.kind.color))), dreadItemPage(item))
+        }
+    }
+    val areas = Tab("Areas").apply {
+        row(Row(OVERVIEW, "Progress", count = items.map { it.id } to "{d} of {n} items"), Page("Items", "Tap an item to check it off.").apply {
+            meters(
+                tags = DreadKind.entries.map { k -> Meter(k.short, items.filter { it.kind == k }.map { it.id }, listOf(hex(k.color))) },
+                rows = DreadArea.entries.map { a ->
+                    val of = items.filter { it.area == a }
+                    Meter(a.label, of.map { it.id }, of.map { hex(it.kind.color) })
+                },
+            )
+            reset()
+        })
+        items.forEachIndexed { i, item ->
+            val group = if (i == 0 || items[i - 1].area != item.area) item.area.label else null
+            row(Row(item.id, item.name, dreadItemSubtitle(item), group, cells = listOf(item.id to hex(item.kind.color))), dreadItemPage(item))
+        }
+    }
+    val upgrades = Tab("Upgrades").apply {
+        DreadPages.upgradeOrder.forEachIndexed { i, id ->
+            val u = DreadItems.byId.getValue(id)
+            row(Row(id, "${i + 1}. ${u.name}", u.area.label, cells = listOf(id to hex(u.kind.color))), dreadItemPage(u).apply {
+                DreadPages.unlocks[id]?.let { text -> panel(SECRET) { h("What it opens up", SECRET); x(text) } }
+            })
+        }
+    }
+    val bosses = Tab("Bosses").apply {
+        DreadPages.bosses.forEach { b ->
+            row(Row(b.id, b.name, b.place), Page(b.name, b.place).apply {
+                tags("Weak point: ${b.weakPoint}" to ACCENT)
+                panel(WARN) {
+                    h("Strategy", WARN)
+                    lines(b.strategy, numbered = true, marker = WARN)
+                }
+                panel { h("Where and why"); lines(b.lines) }
+            })
+        }
+    }
+    val hints = pagesTab("Hints", DreadPages.hints.map { Triple(it.id, it.title, it.subtitle) }) { id -> DreadPages.hints.first { it.id == id }.sections }
+    return listOf(route, areas, upgrades, bosses, hints)
+}
+
+/** Every area's room layout, for the web map renderer. */
+fun dreadMaps(): Map<String, Any?> = roomMaps(DreadArea.entries.map { DreadMaps.of(it) })
 
 /** Room layouts in the web app's format, keyed by area. */
 fun roomMaps(maps: List<com.retroreadme.ui.RoomMap>): Map<String, Any?> = maps.associate { m ->
